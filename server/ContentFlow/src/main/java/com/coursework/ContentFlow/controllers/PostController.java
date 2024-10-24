@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,15 +46,15 @@ public class PostController {
             postDTO.setPostID(post.getId());
             postDTO.setTitle(post.getTitle());
             postDTO.setContent(post.getContent());
-            postDTO.setLikes(post.getLikes().size()); // Отримуємо кількість лайків безпосередньо з лайків
-            postDTO.setUsername(post.getUser().getUsername());
+            postDTO.setLikes(post.getLikes().size());
+            postDTO.setUserId(postService.getUserIdByPostId(post.getId()));
 
             // Перетворюємо коментарі в CommentDTO
             List<CommentDTO> commentDTOs = post.getComments().stream().map(comment -> {
                 CommentDTO commentDTO = new CommentDTO();
                 commentDTO.setCommentID(comment.getId());
                 commentDTO.setText(comment.getText());
-                commentDTO.setUsername(comment.getUser().getUsername());
+                commentDTO.setUserId(commentService.getUserIdByCommentId(comment.getId()));
                 return commentDTO;
             }).toList();
 
@@ -71,6 +72,7 @@ public class PostController {
         // Отримуємо користувача за ID
         User user = userService.getUserById(userId);
         post.setUser(user); // Прив'язуємо пост до користувача
+        post.setLikes(new ArrayList<>()); // Ініціалізуємо поле likes як пустий список
 
         Post createdPost = postService.createPost(post);
         logger.info("Post created with ID: {}", createdPost.getId());
@@ -80,8 +82,8 @@ public class PostController {
         postDTO.setPostID(createdPost.getId());
         postDTO.setTitle(createdPost.getTitle());
         postDTO.setContent(createdPost.getContent());
-        postDTO.setLikes(createdPost.getLikes().size());
-        postDTO.setUsername(user.getUsername()); // Отримання імені користувача
+        postDTO.setLikes(createdPost.getLikes().size()); // Використовуємо size() для отримання кількості лайків
+        postDTO.setUserId(user.getId()); // Встановлюємо ID користувача
 
         return ResponseEntity.ok(postDTO);
     }

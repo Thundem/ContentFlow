@@ -10,5 +10,5 @@ import lombok.NoArgsConstructor;
 public class CommentDTO {
     private Long commentID;
     private String text;
-    private String username; // Ім'я користувача, який залишив коментар
+    private Long userId;
 }

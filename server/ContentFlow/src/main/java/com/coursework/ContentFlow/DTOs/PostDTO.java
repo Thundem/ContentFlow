@@ -13,6 +13,6 @@ public class PostDTO {
     private String title;
     private String content;
     private int likes;
-    private String username; // Ім'я користувача
-    private List<CommentDTO> comments; // Додаємо список коментарів
+    private Long userId;
+    private List<CommentDTO> comments;
 }
