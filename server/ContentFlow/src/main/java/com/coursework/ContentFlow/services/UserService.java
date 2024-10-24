@@ -30,4 +30,8 @@ public class UserService {
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
+
+    public User getUsernameById(Long id) {
+        return getUserById(id); // Використовуємо вже існуючий метод
+    }
 }

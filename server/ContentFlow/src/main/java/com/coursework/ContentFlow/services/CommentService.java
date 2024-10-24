@@ -28,4 +28,11 @@ public class CommentService {
     public List<Comment> getCommentsByPostId(Long postId) {
         return commentRepository.findByPostId(postId);
     }
+
+    public Long getUserIdByCommentId(Long commentId) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new EntityNotFoundException("Comment with ID: " + commentId + " not found"));
+        return comment.getUser().getId(); // Повертає ID користувача
+    }
+
 }

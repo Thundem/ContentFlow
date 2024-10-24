@@ -65,4 +65,9 @@ public class PostService {
     public int countLikesForPost(Long postId) {
         return likeRepository.countByPostId(postId);
     }
+
+    public Long getUserIdByPostId(Long postId) {
+        Post post = getPostById(postId);
+        return post.getUser() != null ? post.getUser().getId() : null; // Повертаємо id користувача або null
+    }
 }
