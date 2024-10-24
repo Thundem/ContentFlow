@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
 interface Comment {
@@ -11,21 +11,44 @@ interface PostProps {
     title: string;
     content: string;
     likes: number;
-    username: string;
     comments: Comment[];
+    userId: number | null; 
+    username: string;
 }
 
-const Post: React.FC<PostProps> = ({ id, title, content, likes, username, comments }) => {
+const Post: React.FC<PostProps> = ({ id, title, content, likes, comments, userId }) => {
     const [newComment, setNewComment] = useState('');
+    const [username, setUsername] = useState<string>(''); // Додано стан для зберігання імені користувача
+
+    const handleUsername = async (userId: number) => {
+        try {
+            const response = await axios.get(`http://localhost:8080/api/users/username/${userId}`);
+            const username = response.data; // Отримуємо ім'я користувача з відповіді
+            console.log('Username:', username); // Виводимо ім'я користувача в консоль
+            return username; // Повертаємо ім'я користувача
+        } catch (error) {
+            console.error('Error fetching username:', error);
+        }
+    };
+
+    useEffect(() => {
+        const fetchUsername = async () => {
+            if (userId) { // Перевірка, чи userId існує
+                const fetchedUsername = await handleUsername(userId);
+                setUsername(fetchedUsername || 'Автор невідомий'); // Оновлюємо стан з ім'ям користувача
+            }
+        };
+        fetchUsername();
+    }, [userId]); // Викликати при зміні userId
 
     const handleLike = async () => {
-        await axios.post(`http://localhost:8080/api/posts/${id}/like?userId=1`); // Встановіть userId
+        await axios.post(`http://localhost:8080/api/posts/${id}/like?userId=${userId}`);
         alert('Post liked!');
     };
 
     const handleCommentSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        await axios.post(`http://localhost:8080/api/posts/${id}/comments?userId=1`, { text: newComment });
+        await axios.post(`http://localhost:8080/api/posts/${id}/comments?userId=${userId}`, { text: newComment });
         setNewComment('');
         alert('Comment added!');
     };

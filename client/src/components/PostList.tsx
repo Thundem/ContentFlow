@@ -12,8 +12,9 @@ interface PostData {
     title: string;
     content: string;
     likes: number;
-    user: { id: number; username: string };
+    user: { id: number; username: string } | null;
     comments: Comment[];
+    userId: number | null;
 }
 
 const PostList: React.FC = () => {
@@ -36,8 +37,9 @@ const PostList: React.FC = () => {
                     title={post.title}
                     content={post.content}
                     likes={post.likes}
-                    username={post.user.username}
+                    username={post.user ? post.user.username : 'Автор невідомий'}
                     comments={post.comments}
+                    userId={post.userId}
                 />
             ))}
         </div>
