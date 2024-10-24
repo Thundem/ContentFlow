@@ -41,7 +41,7 @@ ContentFlow
 1. Клонуйте репозиторій:
 
    ```bash
-   git clone https://github.com/yourusername/contentflow.git
+   git clone https://github.com/Thundem/ContentFlow.git
    ```
 
 2. Перейдіть до папки проекту:
