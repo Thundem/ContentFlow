@@ -1,39 +1,38 @@
 .header {
-    background-color: #333; /* Темний фон */
-    color: #fff; /* Білий текст */
-    display: flex; /* Flexbox для вирівнювання */
-    justify-content: space-between; /* Простір між елементами */
-    align-items: center; /* Центрування елементів по вертикалі */
-    padding: 10px; /* Відступи */
-    position: fixed; /* Фіксація заголовка вгорі */
-    width: 100%; /* Повна ширина */
-    top: 0; /* Розташування зверху */
-    left: 0; /* Вирівнювання по лівому краю */
-    z-index: 1000; /* Забезпечення над іншими елементами */
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Додати тінь для ефекту */
+    background-color: #333;
+    color: #fff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
 .header-title {
-    font-size: 24px; /* Розмір заголовка */
+    font-size: 24px;
 }
 
 .header-nav {
-    display: flex; /* Вирівнювання посилань */
-    flex-wrap: wrap; /* Дозволити обгортання посилань */
+    display: flex;
+    flex-wrap: wrap;
 }
 
 .header-nav a {
-    color: #fff; /* Білий текст для посилань */
-    text-decoration: none; /* Прибрати підкреслення */
-    margin: 0 15px; /* Проміжок між посиланнями */
-    transition: color 0.3s; /* Плавний перехід кольору */
+    color: #fff;
+    text-decoration: none;
+    margin: 0 15px;
+    transition: color 0.3s;
 }
 
 .header-nav a:hover {
-    color: #ddd; /* Зміна кольору при наведенні */
+    color: #ddd;
 }
 
-/* Додати деякі відступи до тіла, щоб запобігти перекриттю з заголовком */
 body {
-    padding-top: 60px; /* Відрегулювати цю величину відповідно до висоти заголовка */
+    padding-top: 60px;
 }
