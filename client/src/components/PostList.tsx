@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Post from './Post';
 import { PostData } from './types';
+import './style/PostList.css';
 
 const PostList: React.FC = () => {
     const [posts, setPosts] = useState<PostData[]>([]);
@@ -15,7 +16,7 @@ const PostList: React.FC = () => {
     }, []);
 
     return (
-        <div className="post-list">
+        <div className="post-list-container">
             {posts.map(post => (
                 <Post
                     key={post.id}
