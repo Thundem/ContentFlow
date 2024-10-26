@@ -1,31 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-
-interface Comment {
-    id: number;
-    text: string;
-}
-
-interface PostProps {
-    id: number;
-    title: string;
-    content: string;
-    likes: number;
-    comments: Comment[];
-    userId: number | null; 
-    username: string;
-}
+import './style/Post.css';
+import { PostProps } from './types';
 
 const Post: React.FC<PostProps> = ({ id, title, content, likes, comments, userId }) => {
     const [newComment, setNewComment] = useState('');
-    const [username, setUsername] = useState<string>(''); // Додано стан для зберігання імені користувача
+    const [username, setUsername] = useState<string>('');
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isLiked, setIsLiked] = useState(false);
 
     const handleUsername = async (userId: number) => {
         try {
             const response = await axios.get(`http://localhost:8080/api/users/username/${userId}`);
-            const username = response.data; // Отримуємо ім'я користувача з відповіді
-            console.log('Username:', username); // Виводимо ім'я користувача в консоль
-            return username; // Повертаємо ім'я користувача
+            return response.data;
         } catch (error) {
             console.error('Error fetching username:', error);
         }
@@ -33,16 +20,17 @@ const Post: React.FC<PostProps> = ({ id, title, content, likes, comments, userId
 
     useEffect(() => {
         const fetchUsername = async () => {
-            if (userId) { // Перевірка, чи userId існує
+            if (userId) {
                 const fetchedUsername = await handleUsername(userId);
-                setUsername(fetchedUsername || 'Автор невідомий'); // Оновлюємо стан з ім'ям користувача
+                setUsername(fetchedUsername || 'Автор невідомий');
             }
         };
         fetchUsername();
-    }, [userId]); // Викликати при зміні userId
+    }, [userId]);
 
     const handleLike = async () => {
         await axios.post(`http://localhost:8080/api/posts/${id}/like?userId=${userId}`);
+        setIsLiked(true);
         alert('Post liked!');
     };
 
@@ -51,29 +39,51 @@ const Post: React.FC<PostProps> = ({ id, title, content, likes, comments, userId
         await axios.post(`http://localhost:8080/api/posts/${id}/comments?userId=${userId}`, { text: newComment });
         setNewComment('');
         alert('Comment added!');
+        setIsModalOpen(false); // Закриваємо модальне вікно після додавання коментаря
     };
 
     return (
-        <div className="post">
-            <h2>{title} (by {username})</h2>
-            <p>{content}</p>
-            <button onClick={handleLike}>Like ({likes})</button>
-            <h3>Comments:</h3>
-            <ul>
-                {comments.map(comment => (
-                    <li key={comment.id}>{comment.text}</li>
-                ))}
-            </ul>
-            <form onSubmit={handleCommentSubmit}>
-                <input
-                    type="text"
-                    value={newComment}
-                    onChange={(e) => setNewComment(e.target.value)}
-                    placeholder="Add a comment"
-                    required
-                />
-                <button type="submit">Submit</button>
-            </form>
+        <div className="post-card">
+            <div className="post-header">
+                <span className="username">{username}</span>
+                <h2 className="post-title">{title}</h2>
+            </div>
+            <p className="post-content">{content}</p>
+            <div className="post-footer">
+                <button className="comments-button" onClick={() => setIsModalOpen(true)}>
+                    Comments ({comments.length})
+                </button>
+                <div className="like-container">
+                    <button onClick={handleLike}>
+                        <span className={isLiked ? 'heart liked' : 'heart'}>❤️</span>
+                    </button>
+                    <span className="likes-count">{likes}</span>
+                </div>
+            </div>
+
+            {isModalOpen && (
+                <div className="modal">
+                    <div className="modal-content">
+                        <span className="close" onClick={() => setIsModalOpen(false)}>&times;</span>
+                        <h3>Comments:</h3>
+                        <ul>
+                            {comments.map(comment => (
+                                <li key={comment.id}>{comment.text}</li>
+                            ))}
+                        </ul>
+                        <form onSubmit={handleCommentSubmit} className="comment-form">
+                            <input
+                                type="text"
+                                value={newComment}
+                                onChange={(e) => setNewComment(e.target.value)}
+                                placeholder="Add a comment"
+                                required
+                            />
+                            <button type="submit">Submit</button>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

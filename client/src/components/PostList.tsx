@@ -1,21 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Post from './Post';
-
-interface Comment {
-    id: number;
-    text: string;
-}
-
-interface PostData {
-    id: number;
-    title: string;
-    content: string;
-    likes: number;
-    user: { id: number; username: string } | null;
-    comments: Comment[];
-    userId: number | null;
-}
+import { PostData } from './types';
 
 const PostList: React.FC = () => {
     const [posts, setPosts] = useState<PostData[]>([]);
@@ -37,7 +23,6 @@ const PostList: React.FC = () => {
                     title={post.title}
                     content={post.content}
                     likes={post.likes}
-                    username={post.user ? post.user.username : 'Автор невідомий'}
                     comments={post.comments}
                     userId={post.userId}
                 />
