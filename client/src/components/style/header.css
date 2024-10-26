@@ -1,5 +1,5 @@
 .header {
-    background-color: #333;
+    background-color: var(--main-color);
     color: #fff;
     display: flex;
     justify-content: space-between;
