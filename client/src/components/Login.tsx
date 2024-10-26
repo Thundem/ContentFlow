@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import emailIcon from "../img/email.svg";
-import passwordIcon from "../img/password.svg";
-import styles from "../style/SignUp.module.css";
+import emailIcon from "./img/email.svg";
+import passwordIcon from "./img/password.svg";
+import styles from "./style/SignUp.module.css";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { notify } from "./toast";
