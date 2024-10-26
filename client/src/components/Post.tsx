@@ -2,12 +2,15 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import './style/Post.css';
 import { PostProps } from './types';
+import { CiHeart } from "react-icons/ci";
 
 const Post: React.FC<PostProps> = ({ id, title, content, likes, comments, userId }) => {
     const [newComment, setNewComment] = useState('');
     const [username, setUsername] = useState<string>('');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isLiked, setIsLiked] = useState(false);
+
+    const borderColor = isLiked ? 'red' : 'var(--main-color)';
 
     const handleUsername = async (userId: number) => {
         try {
@@ -54,8 +57,8 @@ const Post: React.FC<PostProps> = ({ id, title, content, likes, comments, userId
                     Comments ({comments.length})
                 </button>
                 <div className="like-container">
-                    <button onClick={handleLike}>
-                        <span className={isLiked ? 'heart liked' : 'heart'}>❤️</span>
+                    <button onClick={handleLike} style={{ background: 'none', border: 'none' }}>
+                        <CiHeart style={{ fill: isLiked ? 'red' : 'none', stroke: borderColor, strokeWidth: '2', width: '24px', height: '24px' }} />
                     </button>
                     <span className="likes-count">{likes}</span>
                 </div>
