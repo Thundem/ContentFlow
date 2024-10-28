@@ -44,7 +44,7 @@ public class PostController {
         List<PostDTO> postDTOs = posts.stream().map(post -> {
             PostDTO postDTO = new PostDTO();
             postDTO.setPostID(post.getId());
-            postDTO.setTitle(post.getTitle());
+            postDTO.setMediaUrl(post.getMediaUrl());
             postDTO.setContent(post.getContent());
             postDTO.setLikes(post.getLikes().size());
             postDTO.setUserId(postService.getUserIdByPostId(post.getId()));
@@ -67,23 +67,21 @@ public class PostController {
 
     @PostMapping
     public ResponseEntity<PostDTO> createPost(@RequestBody Post post, @RequestParam Long userId) {
-        logger.info("Creating post with title: {}", post.getTitle());
+        logger.info("Creating post by : {}", post.getUser());
 
-        // Отримуємо користувача за ID
         User user = userService.getUserById(userId);
-        post.setUser(user); // Прив'язуємо пост до користувача
-        post.setLikes(new ArrayList<>()); // Ініціалізуємо поле likes як пустий список
+        post.setUser(user);
+        post.setLikes(new ArrayList<>());
 
         Post createdPost = postService.createPost(post);
         logger.info("Post created with ID: {}", createdPost.getId());
 
-        // Створення PostDTO
         PostDTO postDTO = new PostDTO();
         postDTO.setPostID(createdPost.getId());
-        postDTO.setTitle(createdPost.getTitle());
+        postDTO.setMediaUrl(createdPost.getMediaUrl()); // Додати mediaUrl
         postDTO.setContent(createdPost.getContent());
-        postDTO.setLikes(createdPost.getLikes().size()); // Використовуємо size() для отримання кількості лайків
-        postDTO.setUserId(user.getId()); // Встановлюємо ID користувача
+        postDTO.setLikes(createdPost.getLikes().size());
+        postDTO.setUserId(user.getId());
 
         return ResponseEntity.ok(postDTO);
     }
