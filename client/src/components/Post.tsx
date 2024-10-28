@@ -4,7 +4,7 @@ import './style/Post.css';
 import { PostProps } from './types';
 import { CiHeart } from "react-icons/ci";
 
-const Post: React.FC<PostProps> = ({ id, title, content, likes, comments, userId }) => {
+const Post: React.FC<PostProps> = ({ id, mediaUrl, content, likes, comments, userId }) => {
     const [newComment, setNewComment] = useState('');
     const [username, setUsername] = useState<string>('');
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -42,15 +42,25 @@ const Post: React.FC<PostProps> = ({ id, title, content, likes, comments, userId
         await axios.post(`http://localhost:8080/api/posts/${id}/comments?userId=${userId}`, { text: newComment });
         setNewComment('');
         alert('Comment added!');
-        setIsModalOpen(false); // Закриваємо модальне вікно після додавання коментаря
     };
 
     return (
         <div className="post-card">
             <div className="post-header">
                 <span className="username">{username}</span>
-                <h2 className="post-title">{title}</h2>
             </div>
+            {mediaUrl && (
+                <div className="post-media">
+                    {mediaUrl.endsWith('.mp4') ? (
+                        <video controls>
+                            <source src={mediaUrl} type="video/mp4" />
+                            Your browser does not support the video tag.
+                        </video>
+                    ) : (
+                        <img src={mediaUrl} alt="Post media" className="post-media" />
+                    )}
+                </div>
+            )}
             <p className="post-content">{content}</p>
             <div className="post-footer">
                 <button className="comments-button" onClick={() => setIsModalOpen(true)}>
