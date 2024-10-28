@@ -22,10 +22,10 @@ export const validate = (data: LoginData | SignUpData, type: "login" | "signUp")
     if (type === "signUp") {
       const signUpData = data as SignUpData;
   
-      if (!signUpData.name.trim()) {
-        errors.name = "Username is Required!";
+      if (!signUpData.username.trim()) {
+        errors.username = "Username is Required!";
       } else {
-        delete errors.name;
+        delete errors.username;
       }
   
       if (!signUpData.confirmPassword) {

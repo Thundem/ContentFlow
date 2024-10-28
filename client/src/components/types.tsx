@@ -4,7 +4,7 @@ export interface LoginData {
 }
 
 export interface SignUpData {
-    name: string;
+    username: string;
     email: string;
     password: string;
     confirmPassword: string;
@@ -18,7 +18,7 @@ export interface Comment {
 
 export interface PostData {
     id: number;
-    title: string;
+    mediaUrl: string;
     content: string;
     likes: number;
     user: { id: number; username: string } | null;
@@ -28,7 +28,7 @@ export interface PostData {
 
 export interface PostProps {
     id: number;
-    title: string;
+    mediaUrl: string;
     content: string;
     likes: number;
     comments: Comment[];
