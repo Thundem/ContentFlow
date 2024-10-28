@@ -12,11 +12,9 @@ import java.util.List;
 @Service
 public class CommentService {
     private final CommentRepository commentRepository;
-    private final PostRepository postRepository;
 
     public CommentService(CommentRepository commentRepository, PostRepository postRepository) {
         this.commentRepository = commentRepository;
-        this.postRepository = postRepository;
     }
 
     // Додати коментар
@@ -32,7 +30,7 @@ public class CommentService {
     public Long getUserIdByCommentId(Long commentId) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new EntityNotFoundException("Comment with ID: " + commentId + " not found"));
-        return comment.getUser().getId(); // Повертає ID користувача
+        return comment.getUser().getId();
     }
 
 }
