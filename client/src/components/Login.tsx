@@ -5,11 +5,12 @@ import styles from "./style/SignUp.module.css";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { notify } from "./toast";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { LoginData } from "./types";
 
 const Login: React.FC = () => {
+  const navigate = useNavigate();
   const [data, setData] = useState<LoginData>({
     email: "",
     password: "",
@@ -19,16 +20,19 @@ const Login: React.FC = () => {
 
   const checkData = (obj: LoginData) => {
     const { email, password } = obj;
-    const urlApi = `https://lightem.senatorhost.com/login-react/index.php?email=${email.toLowerCase()}&password=${password}`;
+    const urlApi = `http://localhost:8080/api/auth/login?email=${email}&password=${password}`;
     
     const api = axios
       .get(urlApi)
       .then((response) => response.data)
-      .then((data) => 
-        data.ok 
-          ? notify("You login to your account successfully", "success") 
-          : notify("Your password or your email is wrong", "error")
-      );
+      .then((data) => {
+        if (data === "Login successful") { 
+          notify("You login to your account successfully", "success");
+          navigate("/");
+        } else {
+          notify("Your password or your email is wrong", "error");
+        }
+      });
 
     toast.promise(api, {
       pending: "Loading your data...",
@@ -90,7 +94,7 @@ const Login: React.FC = () => {
         <div>
           <button type="submit">Login</button>
           <span style={{ color: "#a29494", textAlign: "center", display: "inline-block", width: "100%" }}>
-            Don't have an account? <Link to="/signup">Create account</Link>
+            Don't have an account? <Link to="/register">Create account</Link>
           </span>
         </div>
       </form>

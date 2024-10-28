@@ -13,7 +13,7 @@ import { SignUpData } from "./types";
 
 const SignUp: React.FC = () => {
   const [data, setData] = useState<SignUpData>({
-    name: "",
+    username: "",
     email: "",
     password: "",
     confirmPassword: "",
@@ -43,11 +43,10 @@ const SignUp: React.FC = () => {
   const submitHandler = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!Object.keys(errors).length) {
-      // Підключення до API
-      const urlApi = `https://lightem.senatorhost.com/login-react/index.php?email=${data.email.toLowerCase()}&password=${data.password}&register=true`;
+      const urlApi = `http://localhost:8080/api/auth/register?username=${data.username}&email=${data.email.toLowerCase()}&password=${data.password}`;
       const pushData = async () => {
         try {
-          const response = await axios.get(urlApi);
+          const response = await axios.post(urlApi);
           const apiResponse = response.data;
           toast.promise(Promise.resolve(apiResponse), {
             pending: "Check your data",
@@ -84,12 +83,12 @@ const SignUp: React.FC = () => {
       <form className={styles.formLogin} onSubmit={submitHandler} autoComplete="off">
         <h2>Sign Up</h2>
         <div>
-          <div className={errors.name && touched.name ? styles.unCompleted : !errors.name && touched.name ? styles.completed : undefined}>
+          <div className={errors.username && touched.username ? styles.unCompleted : !errors.username && touched.username ? styles.completed : undefined}>
             <input
               type="text"
-              name="name"
-              value={data.name}
-              placeholder="Name"
+              name="username"
+              value={data.username}
+              placeholder="Username"
               onChange={changeHandler}
               onFocus={focusHandler}
               autoComplete="off"
