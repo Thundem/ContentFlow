@@ -3,6 +3,7 @@ package com.coursework.ContentFlow.services;
 import com.coursework.ContentFlow.models.User;
 import com.coursework.ContentFlow.repositories.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder; // Імпортуємо BCryptPasswordEncoder
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -10,13 +11,16 @@ import java.util.List;
 @Service
 public class UserService {
     private final UserRepository userRepository;
+    private final BCryptPasswordEncoder passwordEncoder; // Додаємо BCryptPasswordEncoder
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder; // Інжектимо BCryptPasswordEncoder
     }
 
     public User registerUser(User user) {
-        return userRepository.save(user); // Тут ти можеш реалізувати хешування пароля
+        user.setPassword(passwordEncoder.encode(user.getPassword())); // Хешуємо пароль перед збереженням
+        return userRepository.save(user);
     }
 
     public User getUserByUsername(String username) {
@@ -32,6 +36,15 @@ public class UserService {
     }
 
     public User getUsernameById(Long id) {
-        return getUserById(id); // Використовуємо вже існуючий метод
+        return getUserById(id);
     }
+
+    public boolean login(String email, String password) {
+        User user = userRepository.findByEmail(email); // Зміна з username на email
+        if (user != null) {
+            return passwordEncoder.matches(password, user.getPassword()); // Перевірка пароля
+        }
+        return false;
+    }
+
 }
