@@ -17,7 +17,10 @@ public class User {
     @Column(name = "user_id")
     private Long id;
     private String username;
-    private String password; // Зберігати в безпечному вигляді (хешування)
+    private String password;
+
+    @Column(unique = true, nullable = false)
+    private String email;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     @JsonManagedReference
