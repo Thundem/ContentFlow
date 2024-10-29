@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useAuth } from "../hooks/useAuth";
 import emailIcon from "./img/email.svg";
 import passwordIcon from "./img/password.svg";
 import styles from "./style/SignUp.module.css";
@@ -11,6 +12,7 @@ import { LoginData } from "./types";
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [data, setData] = useState<LoginData>({
     email: "",
     password: "",
@@ -28,6 +30,7 @@ const Login: React.FC = () => {
       .then((data) => {
         if (data === "Login successful") { 
           notify("You login to your account successfully", "success");
+          login();
           navigate("/");
         } else {
           notify("Your password or your email is wrong", "error");
