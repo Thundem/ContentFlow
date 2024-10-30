@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import axiosInstance from '../api/axiosInstance';
 import './style/Post.css';
 import { PostProps } from './types';
 import { CiHeart } from "react-icons/ci";
@@ -14,10 +14,10 @@ const Post: React.FC<PostProps> = ({ id, mediaUrl, content, likes, comments, use
 
     const handleUsername = async (userId: number) => {
         try {
-            const response = await axios.get(`http://localhost:8080/api/users/username/${userId}`);
-            return response.data;
+          const response = await axiosInstance.get(`/api/users/username/${userId}`);
+          return response.data;
         } catch (error) {
-            console.error('Error fetching username:', error);
+          console.error('Error fetching username:', error);
         }
     };
 
@@ -32,14 +32,14 @@ const Post: React.FC<PostProps> = ({ id, mediaUrl, content, likes, comments, use
     }, [userId]);
 
     const handleLike = async () => {
-        await axios.post(`http://localhost:8080/api/posts/${id}/like?userId=${userId}`);
+        await axiosInstance.post(`http://localhost:8080/api/posts/${id}/like?userId=${userId}`);
         setIsLiked(true);
         alert('Post liked!');
     };
 
     const handleCommentSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        await axios.post(`http://localhost:8080/api/posts/${id}/comments?userId=${userId}`, { text: newComment });
+        await axiosInstance.post(`http://localhost:8080/api/posts/${id}/comments?userId=${userId}`, { text: newComment });
         setNewComment('');
         alert('Comment added!');
     };

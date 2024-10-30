@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import axiosInstance from "../api/axiosInstance";
 import Post from "./Post";
 import { PostData } from "./types";
 import "./style/PostList.css";
@@ -10,7 +10,7 @@ const PostList: React.FC = () => {
     useEffect(() => {
         const fetchPosts = async () => {
             try {
-                const response = await axios.get("http://localhost:8080/api/posts");
+                const response = await axiosInstance.get("/api/posts");
                 if (Array.isArray(response.data)) {
                     setPosts(response.data);
                 } else {

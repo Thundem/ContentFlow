@@ -8,7 +8,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer, toast } from "react-toastify";
 import { notify } from "./toast";
 import { Link } from "react-router-dom";
-import axios from "axios";
+import axiosInstance from "../api/axiosInstance";
 import { SignUpData } from "./types";
 
 const SignUp: React.FC = () => {
@@ -46,7 +46,7 @@ const SignUp: React.FC = () => {
       const urlApi = `http://localhost:8080/api/auth/register?username=${data.username}&email=${data.email.toLowerCase()}&password=${data.password}`;
       const pushData = async () => {
         try {
-          const response = await axios.post(urlApi);
+          const response = await await axiosInstance.post(urlApi);
           const apiResponse = response.data;
           toast.promise(Promise.resolve(apiResponse), {
             pending: "Check your data",

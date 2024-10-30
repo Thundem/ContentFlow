@@ -7,12 +7,13 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { notify } from "./toast";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
 import { LoginData } from "./types";
+import axiosInstance from "../api/axiosInstance";
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
+  console.log('Login component: login =', login);
   const [data, setData] = useState<LoginData>({
     email: "",
     password: "",
@@ -22,28 +23,34 @@ const Login: React.FC = () => {
 
   const checkData = (obj: LoginData) => {
     const { email, password } = obj;
-    const urlApi = `http://localhost:8080/api/auth/login?email=${email}&password=${password}`;
-    
-    const api = axios
-      .get(urlApi)
+    const urlApi = `http://localhost:8080/api/auth/login`;
+  
+    const api = axiosInstance
+      .post(urlApi, { email, password }, { headers: { 'Content-Type': 'application/json' } }) // Передаємо дані у body запиту
       .then((response) => response.data)
       .then((data) => {
-        if (data === "Login successful") { 
-          notify("You login to your account successfully", "success");
+        if (data.token) {
           login();
+          localStorage.setItem("token", data.token);
+          notify("You logged into your account successfully", "success");
           navigate("/");
         } else {
-          notify("Your password or your email is wrong", "error");
+          throw new Error("Your password or your email is wrong");
         }
+      })
+      .catch((error) => {
+        const errorMessage = error.response?.data || "Something went wrong!";
+        notify(errorMessage, "error");
+        throw new Error(errorMessage);
       });
-
+  
     toast.promise(api, {
       pending: "Loading your data...",
       success: "Login successful!",
       error: "Something went wrong!",
     });
   };
-
+  
   const changeHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = event.target;
     setData((prevData) => ({
