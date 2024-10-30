@@ -39,10 +39,14 @@ public class UserService {
         return getUserById(id);
     }
 
+    public User getUserByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
     public boolean login(String email, String password) {
-        User user = userRepository.findByEmail(email); // Зміна з username на email
+        User user = userRepository.findByEmail(email);
         if (user != null) {
-            return passwordEncoder.matches(password, user.getPassword()); // Перевірка пароля
+            return passwordEncoder.matches(password, user.getPassword());
         }
         return false;
     }
