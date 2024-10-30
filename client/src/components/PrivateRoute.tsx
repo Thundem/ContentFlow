@@ -7,7 +7,12 @@ interface PrivateRouteProps {
 }
 
 const PrivateRoute: React.FC<PrivateRouteProps> = ({ element }) => {
-    const { isAuthenticated } = useAuth();
+    const { isAuthenticated, isLoading } = useAuth();
+
+    if (isLoading) {
+        // Поки триває завантаження, можна повернути компонент завантаження або null
+        return null; // Або поверніть індикатор завантаження
+    }
 
     return isAuthenticated ? element : <Navigate to="/login" replace />;
 };
