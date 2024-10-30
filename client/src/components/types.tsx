@@ -34,3 +34,10 @@ export interface PostProps {
     comments: Comment[];
     userId: number | null; 
 }
+
+export interface AuthContextType {
+    isAuthenticated: boolean;
+    isLoading: boolean;
+    login: () => void;
+    logout: () => void;
+}
