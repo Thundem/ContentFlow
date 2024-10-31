@@ -1,3 +1,4 @@
+// src/components/SignUp.tsx
 import React, { useEffect, useState } from "react";
 import userIcon from "./img/user.svg";
 import emailIcon from "./img/email.svg";
@@ -7,11 +8,12 @@ import styles from "./style/SignUp.module.css";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer, toast } from "react-toastify";
 import { notify } from "./toast";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axiosInstance from "../api/axiosInstance";
 import { SignUpData } from "./types";
 
 const SignUp: React.FC = () => {
+  const navigate = useNavigate(); // Додаємо навігацію після успішної реєстрації
   const [data, setData] = useState<SignUpData>({
     username: "",
     email: "",
@@ -43,37 +45,40 @@ const SignUp: React.FC = () => {
   const submitHandler = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!Object.keys(errors).length) {
-      const urlApi = `http://localhost:8080/api/auth/register?username=${data.username}&email=${data.email.toLowerCase()}&password=${data.password}`;
       const pushData = async () => {
         try {
-          const response = await await axiosInstance.post(urlApi);
-          const apiResponse = response.data;
-          toast.promise(Promise.resolve(apiResponse), {
-            pending: "Check your data",
-            success: "Checked!",
-            error: "Something went wrong!",
+          const urlApi = `/api/auth/register`;
+          const response = await axiosInstance.post(urlApi, {
+            username: data.username,
+            email: data.email.toLowerCase(),
+            password: data.password,
           });
 
-          if (apiResponse.ok) {
-            notify("You signed Up successfully", "success");
-          } else {
-            notify("You have already registered, log in to your account", "warning");
-          }
+          toast.promise(
+            Promise.resolve(response.data),
+            {
+              pending: "Registering your account...",
+              success: "Registration successful!",
+              error: "Something went wrong!",
+            }
+          );
+
+          notify("You signed up successfully", "success");
+          navigate("/login");
         } catch (error) {
-            console.error('Error:', error);
-            notify("Something went wrong during the request", "error");
+          console.error('Error:', error);
+          notify("Something went wrong during the request", "error");
         }
-          
       };
       pushData();
     } else {
       notify("Please check fields again", "error");
       setTouched({
-        name: true,
+        username: true,
         email: true,
         password: true,
         confirmPassword: true,
-        IsAccepted: false,
+        IsAccepted: true,
       });
     }
   };
@@ -95,7 +100,7 @@ const SignUp: React.FC = () => {
             />
             <img src={userIcon} alt="User icon" />
           </div>
-          {errors.name && touched.name && <span className={styles.error}>{errors.name}</span>}
+          {errors.username && touched.username && <span className={styles.error}>{errors.username}</span>}
         </div>
         <div>
           <div className={errors.email && touched.email ? styles.unCompleted : !errors.email && touched.email ? styles.completed : undefined}>
