@@ -23,7 +23,7 @@ const Login: React.FC = () => {
 
   const checkData = (obj: LoginData) => {
     const { email, password } = obj;
-    const urlApi = `http://localhost:8080/api/auth/login`;
+    const urlApi = `/api/auth/login`;
   
     const api = axiosInstance
       .post(urlApi, { email, password }, { headers: { 'Content-Type': 'application/json' } }) // Передаємо дані у body запиту

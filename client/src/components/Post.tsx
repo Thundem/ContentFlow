@@ -32,14 +32,14 @@ const Post: React.FC<PostProps> = ({ id, mediaUrl, content, likes, comments, use
     }, [userId]);
 
     const handleLike = async () => {
-        await axiosInstance.post(`http://localhost:8080/api/posts/${id}/like?userId=${userId}`);
+        await axiosInstance.post(`/api/posts/${id}/like?userId=${userId}`);
         setIsLiked(true);
         alert('Post liked!');
     };
 
     const handleCommentSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        await axiosInstance.post(`http://localhost:8080/api/posts/${id}/comments?userId=${userId}`, { text: newComment });
+        await axiosInstance.post(`/api/posts/${id}/comments?userId=${userId}`, { text: newComment });
         setNewComment('');
         alert('Comment added!');
     };
