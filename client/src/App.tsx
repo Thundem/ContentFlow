@@ -5,11 +5,9 @@ import PostList from './components/PostList';
 import Login from './components/Login';
 import SignUp from './components/SignUp';
 import PrivateRoute from './components/PrivateRoute';
-import { AuthProvider } from './providers/AuthProvider';
 
 const App: React.FC = () => {
     return (
-        <AuthProvider>
             <Router>
                 <div className="App">
                     <Header />
@@ -20,7 +18,6 @@ const App: React.FC = () => {
                     </Routes>
                 </div>
             </Router>
-        </AuthProvider>
     );
 };
 
