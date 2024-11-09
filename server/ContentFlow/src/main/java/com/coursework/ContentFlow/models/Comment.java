@@ -1,14 +1,15 @@
 package com.coursework.ContentFlow.models;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.*;
-
-import com.fasterxml.jackson.annotation.JsonBackReference;
 
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,10 +19,9 @@ public class Comment {
 
     @ManyToOne
     @JoinColumn(name = "post_id")
-    @JsonBackReference // Зв'язок з Post, не серіалізувати назад
     private Post post;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    private User user; // Зв'язок з користувачем
+    private User user;
 }

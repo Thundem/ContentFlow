@@ -1,6 +1,7 @@
 package com.coursework.ContentFlow.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,6 +12,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Like {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,11 +21,9 @@ public class Like {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    @JsonIgnore
-    private User user; // Зв'язок з користувачем
+    private User user;
 
     @ManyToOne
     @JoinColumn(name = "post_id")
-    @JsonIgnore
-    private Post post; // Зв'язок з постом
+    private Post post;
 }
