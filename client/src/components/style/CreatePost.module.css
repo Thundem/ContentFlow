@@ -1,0 +1,52 @@
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+}
+
+.formGroup {
+    margin-bottom: 20px;
+}
+
+.cropperContainer {
+    margin-bottom: 20px;
+}
+
+.cropButton {
+    margin-top: 10px;
+    padding: 10px 20px;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.cropButton:hover {
+    background-color: #45a049;
+}
+
+.preview {
+    margin-bottom: 20px;
+}
+
+.preview img {
+    max-width: 100%;
+    height: auto;
+}
+
+.submitButton {
+    padding: 10px 20px;
+    background-color: #008cba;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.submitButton:hover {
+    background-color: #007bb5;
+}
