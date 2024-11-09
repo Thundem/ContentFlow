@@ -3,6 +3,7 @@ package com.coursework.ContentFlow.controllers;
 import com.coursework.ContentFlow.models.User;
 import com.coursework.ContentFlow.services.UserService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,6 +17,11 @@ public class UserController {
         this.userService = userService;
     }
 
+    @GetMapping("/me")
+    public User getCurrentUser(Authentication authentication) {
+        String email = authentication.getName();
+        return userService.getUserByEmail(email);
+    }
 
     @GetMapping("/{username}")
     public ResponseEntity<User> getUser(@PathVariable String username) {
