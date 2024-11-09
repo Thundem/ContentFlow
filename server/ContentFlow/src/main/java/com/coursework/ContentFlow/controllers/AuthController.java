@@ -55,18 +55,14 @@ public class AuthController {
     public ResponseEntity<?> login(@RequestBody Map<String, String> credentials) {
         String email = credentials.get("email");
         String password = credentials.get("password");
-        logger.info("Received login request with email: {} and password: {}", email, password);
 
         User user = userService.getUserByEmail(email);
 
-        logger.info("User password: {}, user password in db {}", password, user.getPassword());
 
         if (user == null) {
             logger.warn("No user found with email: {}", email);
             return ResponseEntity.status(401).body("Invalid email or password");
         }
-
-        logger.info("User found: {}, hashed password: {}", email, (user.getPassword()));
 
         boolean passwordMatch = passwordEncoder.matches(password, user.getPassword());
         logger.info("Password match result for email {}: {}", email, passwordMatch);
