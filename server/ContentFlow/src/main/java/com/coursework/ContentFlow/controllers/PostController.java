@@ -1,4 +1,3 @@
-// src/main/java/com/coursework/ContentFlow/controllers/PostController.java
 package com.coursework.ContentFlow.controllers;
 
 import com.coursework.ContentFlow.DTOs.ApiResponse;
@@ -94,7 +93,10 @@ public class PostController {
     }
 
     @PostMapping("/{id}/like")
-    public ResponseEntity<ApiResponse> likePost(@PathVariable Long id, @RequestParam Long userId) {
+    public ResponseEntity<ApiResponse> likePost(@PathVariable Long id, Authentication authentication) {
+        String email = authentication.getName();
+        Long userId = userService.getUserByEmail(email).getId();
+
         try {
             postService.likePost(id, userId);
             logger.info("Post with ID: {} liked successfully by user with ID: {}", id, userId);

@@ -1,4 +1,3 @@
-// src/main/java/com/coursework/ContentFlow/repositories/CommentRepository.java
 package com.coursework.ContentFlow.repositories;
 
 import com.coursework.ContentFlow.models.Comment;

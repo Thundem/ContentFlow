@@ -3,7 +3,7 @@ package com.coursework.ContentFlow.services;
 import com.coursework.ContentFlow.models.User;
 import com.coursework.ContentFlow.repositories.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder; // Імпортуємо BCryptPasswordEncoder
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -11,15 +11,15 @@ import java.util.List;
 @Service
 public class UserService {
     private final UserRepository userRepository;
-    private final BCryptPasswordEncoder passwordEncoder; // Додаємо BCryptPasswordEncoder
+    private final BCryptPasswordEncoder passwordEncoder;
 
     public UserService(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder; // Інжектимо BCryptPasswordEncoder
+        this.passwordEncoder = passwordEncoder;
     }
 
     public User registerUser(User user) {
-        user.setPassword(passwordEncoder.encode(user.getPassword())); // Хешуємо пароль перед збереженням
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }
 

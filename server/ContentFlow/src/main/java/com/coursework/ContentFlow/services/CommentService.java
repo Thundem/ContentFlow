@@ -1,7 +1,6 @@
 package com.coursework.ContentFlow.services;
 
 import com.coursework.ContentFlow.models.Comment;
-import com.coursework.ContentFlow.models.Post;
 import com.coursework.ContentFlow.repositories.CommentRepository;
 import com.coursework.ContentFlow.repositories.PostRepository;
 import jakarta.persistence.EntityNotFoundException;

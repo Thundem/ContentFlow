@@ -1,4 +1,3 @@
-// src/main/java/com/coursework/ContentFlow/models/Comment.java
 package com.coursework.ContentFlow.models;
 
 import jakarta.persistence.*;
