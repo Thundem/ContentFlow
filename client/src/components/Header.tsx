@@ -18,6 +18,7 @@ const Header: React.FC = () => {
                 <a href="/">Home</a>
                 <a href="/about">About</a>
                 <a href="/posts">Posts</a>
+                <a href="/create">Create Post</a>
                 {isAuthenticated && (
                     <button onClick={logout}>
                         Logout
