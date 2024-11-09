@@ -9,7 +9,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PostDTO {
-    private Long postID;
+    private Long id;
     private String mediaUrl;
     private String content;
     private int likes;
