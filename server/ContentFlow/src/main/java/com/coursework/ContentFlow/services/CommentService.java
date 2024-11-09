@@ -18,7 +18,7 @@ public class CommentService {
 
     // Додати коментар
     public Comment addComment(Comment comment) {
-        return commentRepository.save(comment); // Тепер коментар містить пост та користувача
+        return commentRepository.save(comment);
     }
 
     // Отримати коментарі за ID поста
@@ -32,4 +32,15 @@ public class CommentService {
         return comment.getUser().getId();
     }
 
+    public void deleteComment(Long commentId, Long userId) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new EntityNotFoundException("Comment with ID: " + commentId + " not found"));
+
+        // Перевірка, чи користувач є автором коментаря
+        if (!comment.getUser().getId().equals(userId)) {
+            throw new IllegalArgumentException("User is not the author of this comment");
+        }
+
+        commentRepository.delete(comment);
+    }
 }

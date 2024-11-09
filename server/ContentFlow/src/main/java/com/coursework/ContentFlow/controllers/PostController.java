@@ -126,8 +126,11 @@ public class PostController {
     }
 
     @PostMapping("/{postId}/comments")
-    public ResponseEntity<Comment> addComment(@PathVariable Long postId, @RequestBody Comment comment, @RequestParam Long userId) {
+    public ResponseEntity<Comment> addComment(@PathVariable Long postId, @RequestBody Comment comment, Authentication auth) {
         logger.info("Adding comment to post with ID: {}", postId);
+
+        String email = auth.getName();
+        Long userId = userService.getUserByEmail(email).getId();
 
         // Отримуємо користувача за ID
         User user = userService.getUserById(userId);
@@ -147,5 +150,45 @@ public class PostController {
         List<Comment> comments = commentService.getCommentsByPostId(postId);
         logger.info("Retrieved {} comments for post ID: {}", comments.size(), postId);
         return comments;
+    }
+
+    @PostMapping("/{id}/unlike")
+    public ResponseEntity<ApiResponse> unlikePost(@PathVariable Long id, Authentication authentication) {
+        try {
+            String email = authentication.getName();
+            Long userId = userService.getUserByEmail(email).getId();
+            postService.unlikePost(id, userId);
+            logger.info("Post with ID: {} unliked successfully by user with ID: {}", id, userId);
+            ApiResponse response = new ApiResponse("Post with ID: " + id + " unliked successfully", null);
+            return ResponseEntity.ok(response);
+        } catch (EntityNotFoundException ex) {
+            logger.error("Error unliking post: {}", ex.getMessage());
+            ApiResponse response = new ApiResponse(null, "Post not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        } catch (IllegalArgumentException ex) {
+            logger.error("Error unliking post: {}", ex.getMessage());
+            ApiResponse response = new ApiResponse(null, ex.getMessage());
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+        }
+    }
+
+    @DeleteMapping("/{postId}/comments/{commentId}")
+    public ResponseEntity<ApiResponse> deleteComment(@PathVariable Long postId, @PathVariable Long commentId, Authentication authentication) {
+        try {
+            String email = authentication.getName();
+            Long userId = userService.getUserByEmail(email).getId();
+            commentService.deleteComment(commentId, userId);
+            logger.info("Comment with ID: {} deleted successfully by user with ID: {}", commentId, userId);
+            ApiResponse response = new ApiResponse("Comment with ID: " + commentId + " deleted successfully", null);
+            return ResponseEntity.ok(response);
+        } catch (EntityNotFoundException ex) {
+            logger.error("Error deleting comment: {}", ex.getMessage());
+            ApiResponse response = new ApiResponse(null, "Comment not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        } catch (IllegalArgumentException ex) {
+            logger.error("Error deleting comment: {}", ex.getMessage());
+            ApiResponse response = new ApiResponse(null, ex.getMessage());
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+        }
     }
 }

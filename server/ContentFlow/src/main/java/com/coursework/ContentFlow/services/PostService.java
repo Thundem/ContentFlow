@@ -70,4 +70,14 @@ public class PostService {
         Post post = getPostById(postId);
         return post.getUser() != null ? post.getUser().getId() : null; // Повертаємо id користувача або null
     }
+
+    public void unlikePost(Long postId, Long userId) {
+        Post post = getPostById(postId);
+        User user = userService.getUserById(userId);
+
+        Like like = likeRepository.findByPostAndUser(post, user)
+                .orElseThrow(() -> new IllegalArgumentException("User has not liked this post"));
+
+        likeRepository.delete(like);
+    }
 }
