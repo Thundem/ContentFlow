@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
+import axiosInstance from '../api/axiosInstance';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
 interface AuthProviderProps {
     children: React.ReactNode;
@@ -8,27 +11,64 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const [user, setUser] = useState<{ id: number; username: string; email: string } | null>(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
-        const token = localStorage.getItem('token');
-        if (token) {
-            setIsAuthenticated(true);
-            console.log('AuthProvider: User is authenticated');
-        } else {
-            console.log('AuthProvider: No token found');
-        }
-        setIsLoading(false);
-    }, []);
+        const fetchUserData = async () => {
+            const token = localStorage.getItem('token');
+            if (token) {
+                setIsAuthenticated(true);
+                console.log('AuthProvider: User is authenticated');
 
-    const login = () => setIsAuthenticated(true);
+                try {
+                    const response = await axiosInstance.get('/api/users/me');
+                    setUser(response.data);
+                } catch (error) {
+                    console.error('AuthProvider: Error fetching user data', error);
+                    // Якщо помилка, видаляємо токен і встановлюємо isAuthenticated у false
+                    localStorage.removeItem('token');
+                    setIsAuthenticated(false);
+                    setUser(null);
+                    toast.error("Session expired. Please log in again.");
+                    navigate("/login");
+                }
+            } else {
+                console.log('AuthProvider: No token found');
+            }
+            setIsLoading(false);
+        };
+        fetchUserData();
+    }, [navigate]);
+
+    const login = async (token: string) => {
+        try {
+            localStorage.setItem('token', token);
+            setIsAuthenticated(true);
+            const response = await axiosInstance.get('/api/users/me');
+            setUser(response.data);
+            toast.success("You logged into your account successfully");
+            navigate("/");
+        } catch (error) {
+            console.error('AuthProvider: Error fetching user data during login', error);
+            localStorage.removeItem('token');
+            setIsAuthenticated(false);
+            setUser(null);
+            toast.error("Login failed. Please try again.");
+            throw error;
+        }
+    };
 
     const logout = () => {
         localStorage.removeItem('token');
         setIsAuthenticated(false);
+        setUser(null);
+        toast.info("You have been logged out.");
+        navigate("/login");
     };
 
     return (
-        <AuthContext.Provider value={{ isAuthenticated, isLoading, login, logout }}>
+        <AuthContext.Provider value={{ isAuthenticated, isLoading, user, login, logout }}>
             {children}
         </AuthContext.Provider>
     );

@@ -1,3 +1,4 @@
+// src/components/Login.tsx
 import React, { useState } from "react";
 import { useAuth } from "../hooks/useAuth";
 import emailIcon from "./img/email.svg";
@@ -5,7 +6,7 @@ import passwordIcon from "./img/password.svg";
 import styles from "./style/SignUp.module.css";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { notify } from "./toast";
+import { notify } from "./toast"; // Переконайтеся, що ця функція правильно обробляє рядки
 import { Link, useNavigate } from "react-router-dom";
 import { LoginData } from "./types";
 import axiosInstance from "../api/axiosInstance";
@@ -26,20 +27,18 @@ const Login: React.FC = () => {
     const urlApi = `/api/auth/login`;
   
     const api = axiosInstance
-      .post(urlApi, { email, password }, { headers: { 'Content-Type': 'application/json' } }) // Передаємо дані у body запиту
+      .post(urlApi, { email, password }, { headers: { 'Content-Type': 'application/json' } })
       .then((response) => response.data)
-      .then((data) => {
+      .then(async (data) => {
         if (data.token) {
-          login();
-          localStorage.setItem("token", data.token);
-          notify("You logged into your account successfully", "success");
+          await login(data.token);
           navigate("/");
         } else {
           throw new Error("Your password or your email is wrong");
         }
       })
       .catch((error) => {
-        const errorMessage = error.response?.data || "Something went wrong!";
+        const errorMessage = error.response?.data?.error || error.message || "Something went wrong!";
         notify(errorMessage, "error");
         throw new Error(errorMessage);
       });

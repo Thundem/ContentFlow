@@ -38,6 +38,11 @@ export interface PostProps {
 export interface AuthContextType {
     isAuthenticated: boolean;
     isLoading: boolean;
-    login: () => void;
+    user: {
+        id: number;
+        username: string;
+        email: string;
+    } | null;
+    login: (token: string) => Promise<void>;
     logout: () => void;
 }

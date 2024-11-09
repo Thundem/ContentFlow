@@ -1,14 +1,20 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import axiosInstance from '../api/axiosInstance';
 import './style/Post.css';
+import { AuthContext } from '../context/AuthContext';
 import { PostProps } from './types';
 import { CiHeart } from "react-icons/ci";
+import { AxiosError } from 'axios';
+import { toast } from 'react-toastify';
 
 const Post: React.FC<PostProps> = ({ id, mediaUrl, content, likes, comments, userId }) => {
     const [newComment, setNewComment] = useState('');
     const [username, setUsername] = useState<string>('');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isLiked, setIsLiked] = useState(false);
+
+    const { user } = useContext(AuthContext)!;
+    const currentUserId = user?.id;
 
     const borderColor = isLiked ? 'red' : 'var(--main-color)';
 
@@ -32,16 +38,46 @@ const Post: React.FC<PostProps> = ({ id, mediaUrl, content, likes, comments, use
     }, [userId]);
 
     const handleLike = async () => {
-        await axiosInstance.post(`/api/posts/${id}/like?userId=${userId}`);
-        setIsLiked(true);
-        alert('Post liked!');
+        if (!currentUserId) {
+            toast.error("You must be logged in to like a post.");
+            return;
+        }
+        try {
+            await axiosInstance.post(`/api/posts/${id}/like`, null, { params: { userId: currentUserId } });
+            setIsLiked(true);
+            toast.success('Post liked!');
+        } catch (error) {
+            const axiosError = error as AxiosError;
+            console.error("Error liking post:", axiosError);
+
+            const errorMessage =
+                typeof axiosError.response?.data === "string"
+                    ? axiosError.response.data
+                    : "Something went wrong!";
+            toast.error(errorMessage);
+        }
     };
 
     const handleCommentSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        await axiosInstance.post(`/api/posts/${id}/comments?userId=${userId}`, { text: newComment });
-        setNewComment('');
-        alert('Comment added!');
+        if (!currentUserId) {
+            toast.error("You must be logged in to comment.");
+            return;
+        }
+        try {
+            await axiosInstance.post(`/api/posts/${id}/comments`, { text: newComment }, { params: { userId: currentUserId } });
+            setNewComment('');
+            toast.success('Comment added!');
+        } catch (error) {
+            const axiosError = error as AxiosError;
+            console.error("Error adding comment:", axiosError);
+
+            const errorMessage =
+                typeof axiosError.response?.data === "string"
+                    ? axiosError.response.data
+                    : "Something went wrong!";
+            toast.error(errorMessage);
+        }
     };
 
     return (
