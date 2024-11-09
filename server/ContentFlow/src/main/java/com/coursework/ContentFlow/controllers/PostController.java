@@ -1,6 +1,7 @@
 // src/main/java/com/coursework/ContentFlow/controllers/PostController.java
 package com.coursework.ContentFlow.controllers;
 
+import com.coursework.ContentFlow.DTOs.ApiResponse;
 import com.coursework.ContentFlow.DTOs.CommentDTO;
 import com.coursework.ContentFlow.DTOs.PostDTO;
 import com.coursework.ContentFlow.models.Comment;
@@ -10,6 +11,7 @@ import com.coursework.ContentFlow.services.CommentService;
 import com.coursework.ContentFlow.services.PostService;
 import com.coursework.ContentFlow.services.UserService;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.security.core.Authentication;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -43,7 +45,7 @@ public class PostController {
         // Конвертуємо список Post в список PostDTO
         List<PostDTO> postDTOs = posts.stream().map(post -> {
             PostDTO postDTO = new PostDTO();
-            postDTO.setPostID(post.getId());
+            postDTO.setId(post.getId());
             postDTO.setMediaUrl(post.getMediaUrl());
             postDTO.setContent(post.getContent());
             postDTO.setLikes(post.getLikes().size());
@@ -52,13 +54,13 @@ public class PostController {
             // Перетворюємо коментарі в CommentDTO
             List<CommentDTO> commentDTOs = post.getComments().stream().map(comment -> {
                 CommentDTO commentDTO = new CommentDTO();
-                commentDTO.setCommentID(comment.getId());
+                commentDTO.setId(comment.getId());
                 commentDTO.setText(comment.getText());
                 commentDTO.setUserId(commentService.getUserIdByCommentId(comment.getId()));
                 return commentDTO;
             }).toList();
 
-            postDTO.setComments(commentDTOs); // Встановлюємо коментарі в PostDTO
+            postDTO.setComments(commentDTOs);
             return postDTO;
         }).toList();
 
@@ -66,41 +68,48 @@ public class PostController {
     }
 
     @PostMapping
-    public ResponseEntity<PostDTO> createPost(@RequestBody Post post, @RequestParam Long userId) {
-        logger.info("Creating post by : {}", post.getUser());
+    public ResponseEntity<PostDTO> createPost(@RequestBody PostDTO postDTO, Authentication auth) {
+        String email = auth.getName();
+        Long userId = userService.getUserByEmail(email).getId();
+        logger.info("Creating post by : {}", userId);
 
         User user = userService.getUserById(userId);
+        Post post = new Post();
+        post.setContent(postDTO.getContent());
+        post.setMediaUrl(postDTO.getMediaUrl());
         post.setUser(user);
         post.setLikes(new ArrayList<>());
 
         Post createdPost = postService.createPost(post);
         logger.info("Post created with ID: {}", createdPost.getId());
 
-        PostDTO postDTO = new PostDTO();
-        postDTO.setPostID(createdPost.getId());
-        postDTO.setMediaUrl(createdPost.getMediaUrl()); // Додати mediaUrl
-        postDTO.setContent(createdPost.getContent());
-        postDTO.setLikes(createdPost.getLikes().size());
-        postDTO.setUserId(user.getId());
+        PostDTO responseDTO = new PostDTO();
+        responseDTO.setId(createdPost.getId());
+        responseDTO.setMediaUrl(createdPost.getMediaUrl());
+        responseDTO.setContent(createdPost.getContent());
+        responseDTO.setLikes(createdPost.getLikes().size());
+        responseDTO.setUserId(user.getId());
 
-        return ResponseEntity.ok(postDTO);
+        return ResponseEntity.ok(responseDTO);
     }
 
     @PostMapping("/{id}/like")
-    public ResponseEntity<String> likePost(@PathVariable Long id, @RequestParam Long userId) {
+    public ResponseEntity<ApiResponse> likePost(@PathVariable Long id, @RequestParam Long userId) {
         try {
             postService.likePost(id, userId);
             logger.info("Post with ID: {} liked successfully by user with ID: {}", id, userId);
-            return ResponseEntity.ok("Post with ID: " + id + " liked successfully");
+            ApiResponse response = new ApiResponse("Post with ID: " + id + " liked successfully", null);
+            return ResponseEntity.ok(response);
         } catch (EntityNotFoundException ex) {
             logger.error("Error liking post: {}", ex.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Post not found");
+            ApiResponse response = new ApiResponse(null, "Post not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         } catch (IllegalArgumentException ex) {
             logger.error("Error liking post: {}", ex.getMessage());
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+            ApiResponse response = new ApiResponse(null, ex.getMessage());
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
         }
     }
-
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deletePost(@PathVariable Long id) {
