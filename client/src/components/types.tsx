@@ -14,6 +14,7 @@ export interface SignUpData {
 export interface Comment {
     id: number;
     text: string;
+    userId: number;
 }
 
 export interface PostData {
@@ -45,4 +46,11 @@ export interface AuthContextType {
     } | null;
     login: (token: string) => Promise<void>;
     logout: () => void;
+}
+
+export interface CloudinarySignatureResponse {
+    timestamp: number;
+    signature: string;
+    cloudName: string;
+    apiKey: string;
 }
