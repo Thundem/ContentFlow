@@ -1,7 +1,5 @@
-// src/main/java/com/coursework/ContentFlow/services/PostService.java
 package com.coursework.ContentFlow.services;
 
-import com.coursework.ContentFlow.models.Comment;
 import com.coursework.ContentFlow.models.Like;
 import com.coursework.ContentFlow.models.Post;
 import com.coursework.ContentFlow.models.User;
@@ -36,12 +34,6 @@ public class PostService {
         Post post = getPostById(postId);
         User user = userService.getUserById(userId);
 
-        // Перевірка, чи вже є лайк
-        if (likeRepository.existsByPostAndUser(post, user)) {
-            throw new IllegalArgumentException("User has already liked this post");
-        }
-
-        // Створення нового лайка
         Like like = new Like();
         like.setPost(post);
         like.setUser(user);
@@ -79,5 +71,11 @@ public class PostService {
                 .orElseThrow(() -> new IllegalArgumentException("User has not liked this post"));
 
         likeRepository.delete(like);
+    }
+
+    public boolean isPostLikedByUser(Long postId, Long userId) {
+        Post post = getPostById(postId);
+        User user = userService.getUserById(userId);
+        return likeRepository.existsByPostAndUser(post, user);
     }
 }

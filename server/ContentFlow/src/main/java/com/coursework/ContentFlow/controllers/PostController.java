@@ -6,6 +6,7 @@ import com.coursework.ContentFlow.DTOs.PostDTO;
 import com.coursework.ContentFlow.models.Comment;
 import com.coursework.ContentFlow.models.Post;
 import com.coursework.ContentFlow.models.User;
+import com.coursework.ContentFlow.services.CloudinaryService;
 import com.coursework.ContentFlow.services.CommentService;
 import com.coursework.ContentFlow.services.PostService;
 import com.coursework.ContentFlow.services.UserService;
@@ -17,6 +18,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -27,12 +30,14 @@ public class PostController {
     private final PostService postService;
     private final CommentService commentService;
     private final UserService userService;
+    private final CloudinaryService cloudinaryService;
     private static final Logger logger = LoggerFactory.getLogger(PostController.class);
 
-    public PostController(PostService postService, CommentService commentService, UserService userService) {
+    public PostController(PostService postService, CommentService commentService, UserService userService, CloudinaryService cloudinaryService) {
         this.postService = postService;
         this.commentService = commentService;
         this.userService = userService;
+        this.cloudinaryService = cloudinaryService;
     }
 
     @GetMapping
@@ -190,5 +195,20 @@ public class PostController {
             ApiResponse response = new ApiResponse(null, ex.getMessage());
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
         }
+    }
+
+    @GetMapping("/{id}/isLiked")
+    public ResponseEntity<Boolean> isPostLiked(@PathVariable Long id, Authentication authentication) {
+        String email = authentication.getName();
+        Long userId = userService.getUserByEmail(email).getId();
+
+        boolean isLiked = postService.isPostLikedByUser(id, userId);
+        return ResponseEntity.ok(isLiked);
+    }
+
+    @GetMapping("/sign-upload")
+    public ResponseEntity<Map<String, Object>> getCloudinarySignature() {
+        Map<String, Object> signatureData = cloudinaryService.getSignature();
+        return ResponseEntity.ok(signatureData);
     }
 }
