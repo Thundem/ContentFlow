@@ -7,6 +7,7 @@ import SignUp from './components/SignUp';
 import CreatePost from './components/CreatePost';
 import PageNotFound from './components/PageNotFound';
 import PrivateRoute from './components/PrivateRoute';
+import Profile from './components/Profile';
 
 const App: React.FC = () => {
     return (
@@ -17,6 +18,7 @@ const App: React.FC = () => {
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<SignUp />} />
                 <Route path="/create" element={<CreatePost />} />
+                <Route path="/users/:username" element={<Profile />} />
                 <Route path="*" element={<PageNotFound />} />
             </Routes>
         </div>
