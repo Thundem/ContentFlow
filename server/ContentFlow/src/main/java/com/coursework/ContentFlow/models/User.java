@@ -1,6 +1,7 @@
 package com.coursework.ContentFlow.models;
 
 import com.coursework.ContentFlow.models.enums.Gender;
+import com.coursework.ContentFlow.models.enums.Role;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
@@ -32,6 +33,9 @@ public class User {
     private LocalDate dateOfBirth;
 
     private String avatarUrl;
+
+    @Enumerated(EnumType.STRING)
+    private Role role;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Post> posts;

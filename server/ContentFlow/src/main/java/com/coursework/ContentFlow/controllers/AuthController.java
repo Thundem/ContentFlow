@@ -4,6 +4,7 @@ import com.coursework.ContentFlow.configurations.JwtUtil;
 import com.coursework.ContentFlow.models.RegisterRequest;
 import com.coursework.ContentFlow.models.User;
 import com.coursework.ContentFlow.models.enums.Gender;
+import com.coursework.ContentFlow.models.enums.Role;
 import com.coursework.ContentFlow.services.CloudinaryService;
 import com.coursework.ContentFlow.services.UserService;
 import lombok.Data;
@@ -58,6 +59,7 @@ public class AuthController {
             user.setPassword(password);
             user.setGender(gender);
             user.setDateOfBirth(dateOfBirth);
+            user.setRole(Role.valueOf("USER"));
 
             // Зберігаємо користувача без аватара
             User createdUser = userService.registerUser(user);
