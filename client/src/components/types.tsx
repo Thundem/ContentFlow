@@ -9,6 +9,8 @@ export interface SignUpData {
     password: string;
     confirmPassword: string;
     IsAccepted: boolean;
+    gender: string;
+    dateOfBirth: string;
 }
 
 export interface Comment {
@@ -53,4 +55,13 @@ export interface CloudinarySignatureResponse {
     signature: string;
     cloudName: string;
     apiKey: string;
+}
+
+export interface User {
+    id: number;
+    username: string;
+    email: string;
+    avatarUrl: string;
+    gender: 'MALE' | 'FEMALE';
+    dateOfBirth: string;
 }

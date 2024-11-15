@@ -1,4 +1,3 @@
-// src/components/SignUp.tsx
 import React, { useEffect, useState } from "react";
 import userIcon from "./img/user.svg";
 import emailIcon from "./img/email.svg";
@@ -11,15 +10,19 @@ import { notify } from "./toast";
 import { Link, useNavigate } from "react-router-dom";
 import axiosInstance from "../api/axiosInstance";
 import { SignUpData } from "./types";
+import maleAvatar from "./img/manAvatar.png";
+import femaleAvatar from "./img/womanAvatar.png";
 
 const SignUp: React.FC = () => {
-  const navigate = useNavigate(); // Додаємо навігацію після успішної реєстрації
+  const navigate = useNavigate();
   const [data, setData] = useState<SignUpData>({
     username: "",
     email: "",
     password: "",
     confirmPassword: "",
     IsAccepted: false,
+    gender: "",
+    dateOfBirth: "",
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -29,15 +32,26 @@ const SignUp: React.FC = () => {
     setErrors(validate(data, "signUp"));
   }, [data, touched]);
 
-  const changeHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked } = event.target;
-    setData((prevData) => ({
-      ...prevData,
-      [name]: type === "checkbox" ? checked : value,
-    }));
+  const changeHandler = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const target = event.target;
+    const name = target.name;
+
+    if (target instanceof HTMLInputElement && target.type === "checkbox") {
+        const checked = target.checked;
+        setData((prevData) => ({
+            ...prevData,
+            [name]: checked,
+        }));
+    } else {
+        const value = target.value;
+        setData((prevData) => ({
+            ...prevData,
+            [name]: value,
+        }));
+    }
   };
 
-  const focusHandler = (event: React.FocusEvent<HTMLInputElement>) => {
+  const focusHandler = (event: React.FocusEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name } = event.target;
     setTouched((prevTouched) => ({ ...prevTouched, [name]: true }));
   };
@@ -47,11 +61,33 @@ const SignUp: React.FC = () => {
     if (!Object.keys(errors).length) {
       const pushData = async () => {
         try {
+          let avatarFile: File;
+          if (data.gender === "MALE") {
+            const response = await fetch(maleAvatar);
+            const blob = await response.blob();
+            avatarFile = new File([blob], "maleAvatar.png", { type: "image/png" });
+          } else if (data.gender === "FEMALE") {
+            const response = await fetch(femaleAvatar);
+            const blob = await response.blob();
+            avatarFile = new File([blob], "femaleAvatar.png", { type: "image/png" });
+          } else {
+            notify("Please select a gender", "error");
+            return;
+          }
+
+          const formData = new FormData();
+          formData.append("username", data.username);
+          formData.append("email", data.email.toLowerCase());
+          formData.append("password", data.password);
+          formData.append("gender", data.gender);
+          formData.append("dateOfBirth", data.dateOfBirth);
+          formData.append("avatar", avatarFile);
+
           const urlApi = `/api/auth/register`;
-          const response = await axiosInstance.post(urlApi, {
-            username: data.username,
-            email: data.email.toLowerCase(),
-            password: data.password,
+          const response = await axiosInstance.post(urlApi, formData, {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
           });
 
           toast.promise(
@@ -79,6 +115,8 @@ const SignUp: React.FC = () => {
         password: true,
         confirmPassword: true,
         IsAccepted: true,
+        gender: true,
+        dateOfBirth: true,
       });
     }
   };
@@ -116,6 +154,33 @@ const SignUp: React.FC = () => {
             <img src={emailIcon} alt="Email icon" />
           </div>
           {errors.email && touched.email && <span className={styles.error}>{errors.email}</span>}
+        </div>
+        <div>
+          <div className={errors.gender && touched.gender ? styles.unCompleted : !errors.gender && touched.gender ? styles.completed : undefined}>
+            <select
+              name="gender"
+              value={data.gender}
+              onChange={changeHandler}
+              onFocus={focusHandler}
+            >
+              <option value="">Select Gender</option>
+              <option value="MALE">Male</option>
+              <option value="FEMALE">Female</option>
+            </select>
+          </div>
+          {errors.gender && touched.gender && <span className={styles.error}>{errors.gender}</span>}
+        </div>
+        <div>
+          <div className={errors.dateOfBirth && touched.dateOfBirth ? styles.unCompleted : !errors.dateOfBirth && touched.dateOfBirth ? styles.completed : undefined}>
+            <input
+              type="date"
+              name="dateOfBirth"
+              value={data.dateOfBirth}
+              onChange={changeHandler}
+              onFocus={focusHandler}
+            />
+          </div>
+          {errors.dateOfBirth && touched.dateOfBirth && <span className={styles.error}>{errors.dateOfBirth}</span>}
         </div>
         <div>
           <div className={errors.password && touched.password ? styles.unCompleted : !errors.password && touched.password ? styles.completed : undefined}>

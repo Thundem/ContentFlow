@@ -41,6 +41,31 @@ export const validate = (data: LoginData | SignUpData, type: "login" | "signUp")
       } else {
         errors.IsAccepted = "Accept terms!";
       }
+      // Перевірка гендера
+      if (!signUpData.gender) {
+        errors.gender = "Please select your gender";
+      } else {
+          delete errors.gender;
+      }
+
+      // Перевірка дати народження
+      if (!signUpData.dateOfBirth) {
+          errors.dateOfBirth = "Please select your date of birth";
+      } else {
+          // Додаткова перевірка на вік користувача (наприклад, не менше 13 років)
+          const today = new Date();
+          const birthDate = new Date(signUpData.dateOfBirth);
+          let age = today.getFullYear() - birthDate.getFullYear();
+          const monthDifference = today.getMonth() - birthDate.getMonth();
+          if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDate.getDate())) {
+              age--;
+          }
+          if (age < 13) {
+              errors.dateOfBirth = "You must be at least 13 years old";
+          } else {
+              delete errors.dateOfBirth;
+          }
+      }
     }
   
     return errors;
