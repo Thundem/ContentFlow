@@ -6,6 +6,7 @@ import com.coursework.ContentFlow.models.User;
 import com.coursework.ContentFlow.models.enums.Gender;
 import com.coursework.ContentFlow.services.CloudinaryService;
 import com.coursework.ContentFlow.services.UserService;
+import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -115,15 +116,12 @@ public class AuthController {
         return ResponseEntity.status(401).body("Invalid email or password");
     }
 
+    @Data
     public static class JwtResponse {
-        private String token;
+        private final String token;
 
         public JwtResponse(String token) {
             this.token = token;
-        }
-
-        public String getToken() {
-            return token;
         }
     }
 }
