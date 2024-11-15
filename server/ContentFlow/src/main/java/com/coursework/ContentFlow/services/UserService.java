@@ -51,4 +51,11 @@ public class UserService {
         return false;
     }
 
+    public User updateUser(User user) {
+        if (userRepository.existsById(user.getId())) {
+            return userRepository.save(user);
+        } else {
+            throw new EntityNotFoundException("User not found with ID: " + user.getId());
+        }
+    }
 }
