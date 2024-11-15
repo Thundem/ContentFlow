@@ -1,7 +1,10 @@
 package com.coursework.ContentFlow.controllers;
 
 import com.coursework.ContentFlow.configurations.JwtUtil;
+import com.coursework.ContentFlow.models.RegisterRequest;
 import com.coursework.ContentFlow.models.User;
+import com.coursework.ContentFlow.models.enums.Gender;
+import com.coursework.ContentFlow.services.CloudinaryService;
 import com.coursework.ContentFlow.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -9,13 +12,16 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
     private final UserService userService;
+    private final CloudinaryService cloudinaryService;
     private final JwtUtil jwtUtil;
 
     @Autowired
@@ -23,32 +29,63 @@ public class AuthController {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
-    public AuthController(UserService userService, JwtUtil jwtUtil) {
+    public AuthController(UserService userService, CloudinaryService cloudinaryService, JwtUtil jwtUtil) {
         this.userService = userService;
+        this.cloudinaryService = cloudinaryService;
         this.jwtUtil = jwtUtil;
     }
 
     @PostMapping("/register")
-    public ResponseEntity<User> registerUser(@RequestBody Map<String, String> userDetails) {
-        String username = userDetails.get("username");
-        String email = userDetails.get("email");
-        String password = userDetails.get("password");
+    public ResponseEntity<?> registerUser(@ModelAttribute RegisterRequest registerRequest) {
+        try {
+            String username = registerRequest.getUsername();
+            String email = registerRequest.getEmail();
+            String password = registerRequest.getPassword();
+            Gender gender = registerRequest.getGender();
+            LocalDate dateOfBirth = registerRequest.getDateOfBirth();
 
-        logger.info("Registering user with email: {}", email);
-        User user = new User();
-        user.setUsername(username);
-        user.setEmail(email);
-        user.setPassword(password);
+            if (username == null || email == null || password == null || gender == null || dateOfBirth == null) {
+                logger.warn("Missing required parameters for registration");
+                return ResponseEntity.badRequest().body("Missing required parameters");
+            }
 
-        if (username == null || email == null || password == null) {
-            logger.warn("Missing required parameters for registration");
-            return ResponseEntity.badRequest().body(null);
+            logger.info("Registering user with email: {}", email);
+
+            User user = new User();
+            user.setUsername(username);
+            user.setEmail(email);
+            user.setPassword(password);
+            user.setGender(gender);
+            user.setDateOfBirth(dateOfBirth);
+
+            // Зберігаємо користувача без аватара
+            User createdUser = userService.registerUser(user);
+            logger.info("User registered with email: {}", email);
+
+            MultipartFile avatarFile = registerRequest.getAvatar();
+            if (avatarFile != null && !avatarFile.isEmpty()) {
+                // Перевірка MIME-типу
+                String contentType = avatarFile.getContentType();
+                if (!contentType.equals("image/jpeg") && !contentType.equals("image/png")) {
+                    return ResponseEntity.badRequest().body("Invalid file type. Only JPEG and PNG are allowed.");
+                }
+
+                // Завантаження аватара
+                String avatarUrl = cloudinaryService.uploadAvatar(avatarFile);
+                createdUser.setAvatarUrl(avatarUrl);
+                userService.updateUser(createdUser);
+            } else {
+                // Якщо аватар не був надісланий, можна встановити аватар за замовчуванням або кинути помилку
+                logger.warn("Avatar file is missing");
+                return ResponseEntity.badRequest().body("Avatar is required.");
+            }
+
+            return ResponseEntity.ok(createdUser);
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error("Error during registration: {}", e.getMessage());
+            return ResponseEntity.status(500).body("Registration failed.");
         }
-
-        User createdUser = userService.registerUser(user);
-        logger.info("User registered with email: {}", email);
-
-        return ResponseEntity.ok(createdUser);
     }
 
     @PostMapping("/login")
