@@ -2,13 +2,12 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+
 }
 
 #root {
   width: 100%;
-  padding-top: 90px;
-  margin-left: 20px;
-  margin-right: 20px;
+  padding-top: 70px;
 }
 
 :root {
