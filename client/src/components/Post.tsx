@@ -108,10 +108,15 @@ const Post: React.FC<PostProps> = ({ id, mediaUrl, content, likes, comments, use
             console.log('Before axios request');
             const response = await axiosInstance.post<Comment>(`/api/posts/${id}/comments`, { text: newComment });
             console.log('Axios request completed', response);
-            setComments([...commentsState, response.data]);
+
+            const newCommentData: Comment = {
+                ...response.data,
+                userId: currentUserId,
+            };
+
+            setComments([...commentsState, newCommentData]);
             setNewComment('');
             toast.success('Comment added!');
-            console.log('After axios request');
         } catch (error) {
             console.error("Error adding comment:", error);
             const axiosError = error as AxiosError;
@@ -163,13 +168,13 @@ const Post: React.FC<PostProps> = ({ id, mediaUrl, content, likes, comments, use
                     Comments ({commentsState.length})
                 </button>
                 <div className="like-container">
-                <button onClick={handleLike} style={{ background: 'none', border: 'none' }}>
-                    {isLiked ? (
-                        <FaHeart style={{ color: 'red', width: '24px', height: '24px' }} />
-                    ) : (
-                        <FaRegHeart style={{ color: 'var(--main-color)', width: '24px', height: '24px' }} />
-                    )}
-                </button>
+                    <button onClick={handleLike} style={{ background: 'none', border: 'none' }}>
+                        {isLiked ? (
+                            <FaHeart style={{ color: 'red', width: '24px', height: '24px' }} />
+                        ) : (
+                            <FaRegHeart style={{ color: 'var(--main-color)', width: '24px', height: '24px' }} />
+                        )}
+                    </button>
                     <span className="likes-count">{likesCount}</span>
                 </div>
             </div>
@@ -182,9 +187,9 @@ const Post: React.FC<PostProps> = ({ id, mediaUrl, content, likes, comments, use
                         <ul>
                             {commentsState.map(comment => (
                                 <li key={comment.id}>
-                                    {comment.text}
+                                    <span className="comment-text">{comment.text}</span>
                                     {comment.userId === currentUserId && (
-                                        <button onClick={() => handleDeleteComment(comment.id)}>Delete</button>
+                                        <button className="delete-button" onClick={() => handleDeleteComment(comment.id)}>Delete</button>
                                     )}
                                 </li>
                             ))}
