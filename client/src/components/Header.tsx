@@ -8,6 +8,8 @@ const Header: React.FC = () => {
     const { isAuthenticated, isLoading, user, logout } = useAuth();
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [isBurgerMenuOpen, setIsBurgerMenuOpen] = useState(false);
+    const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
+    const [showInstallButton, setShowInstallButton] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
     const location = useLocation();
 
@@ -29,6 +31,20 @@ const Header: React.FC = () => {
         };
     }, [isDropdownOpen]);
 
+    useEffect(() => {
+        const handler = (e: BeforeInstallPromptEvent) => {
+          e.preventDefault();
+          setDeferredPrompt(e);
+          setShowInstallButton(true);
+        };
+
+        window.addEventListener('beforeinstallprompt', handler);
+
+        return () => {
+          window.removeEventListener('beforeinstallprompt', handler);
+        };
+    }, []);
+
     const toggleDropdown = () => {
         setIsDropdownOpen((prev) => !prev);
     };
@@ -44,6 +60,20 @@ const Header: React.FC = () => {
     if (isLoading) {
         return null;
     }
+
+    const handleInstallClick = () => {
+        if (!deferredPrompt) return;
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+          if (choiceResult.outcome === 'accepted') {
+            console.log('User accepted the A2HS prompt');
+          } else {
+            console.log('User dismissed the A2HS prompt');
+          }
+          setDeferredPrompt(null);
+          setShowInstallButton(false);
+        });
+    };
 
     return (
         <header className="header">
@@ -93,6 +123,11 @@ const Header: React.FC = () => {
                     )}
                 </div>
             </nav>
+            {showInstallButton && (
+                <button onClick={handleInstallClick} className="install-button">
+                Install App
+                </button>
+            )}
         </header>
     );
 };
