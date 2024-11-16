@@ -20,20 +20,35 @@
 .header-nav {
     display: flex;
     align-items: center;
+    position: relative;
+    padding-right: 10px;
 }
 
-.header-nav a {
+.nav-links {
+    display: flex;
+    align-items: center;
+}
+
+.nav-links a {
     color: #fff;
     text-decoration: none;
     margin: 0 15px;
     transition: color 0.3s;
 }
 
-.header-nav a:hover {
+.nav-links a:hover {
     color: #ddd;
 }
 
-/* Стилі для меню користувача */
+.burger-menu-button {
+    display: none;
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 24px;
+    cursor: pointer;
+}
+
 .header-user-menu {
     position: relative;
     display: flex;
@@ -54,7 +69,6 @@
     margin-right: 5px;
 }
 
-/* Стилі для спадного меню */
 .dropdown-menu {
     position: absolute;
     top: 100%;
@@ -133,4 +147,90 @@
 
 .login-button:hover {
     background-color: var(--main-color-hover);
+}
+
+.nav-links.active {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    top: 60px;
+    right: 20px;
+    background-color: var(--main-color);
+    border-radius: 5px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    padding: 10px 0;
+}
+
+.nav-links.active a {
+    margin: 10px 0;
+    padding: 10px 20px;
+}
+
+.nav-links.active a:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #ddd;
+}
+
+.burger-menu-dropdown {
+    position: absolute;
+    top: 60px;
+    right: 20px;
+    background-color: var(--main-color);
+    color: #fff;
+    width: 200px;
+    border-radius: 5px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    display: flex;
+    flex-direction: column;
+    padding: 10px 0;
+    z-index: 999;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.burger-menu-dropdown.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+@media (max-width: 520px) {
+    .nav-links {
+        display: none;
+    }
+
+    .burger-menu-button {
+        display: block;
+    }
+
+    .nav-links.active {
+        display: flex;
+        flex-direction: column;
+        position: absolute;
+        top: 60px;
+        right: 20px;
+        background-color: var(--main-color);
+        border-radius: 5px;
+        box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+        padding: 10px 0;
+    }
+
+    .nav-links.active a {
+        margin: 10px 0;
+        padding: 10px 20px;
+    }
+
+    .nav-links.active a:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+        color: #ddd;
+    }
+
+    .burger-menu-dropdown {
+        display: none;
+    }
+
+    .burger-menu-dropdown.active {
+        display: flex;
+        flex-direction: column;
+    }
 }
