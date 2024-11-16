@@ -60,7 +60,6 @@ const CreatePost: React.FC = () => {
         formData.append("signature", signature);
         formData.append("source", "browser");
 
-        // Завантажуємо файл на Cloudinary
         const uploadResponse = await axios.post(
           `https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`,
           formData,
