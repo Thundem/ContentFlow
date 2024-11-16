@@ -70,3 +70,13 @@ export interface User {
     gender: 'MALE' | 'FEMALE';
     dateOfBirth: string;
 }
+
+export interface FieldErrorResponse {
+    errors: {
+      [key: string]: string;
+    };
+}
+
+export interface CheckResponse {
+    exists: boolean;
+}

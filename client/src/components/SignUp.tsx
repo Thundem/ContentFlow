@@ -1,4 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
+import axios from 'axios';
+import { useNavigate, Link } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import Modal from 'react-modal';
+import "react-toastify/dist/ReactToastify.css";
+import styles from "./style/SignUp.module.css";
 import userIcon from "./img/user.svg";
 import nameIcon from "./img/name.svg";
 import surnameIcon from "./img/surname.svg";
@@ -6,20 +12,27 @@ import emailIcon from "./img/email.svg";
 import passwordIcon from "./img/password.svg";
 import dateIcon from "./img/date-of-birth.svg";
 import genderIcon from "./img/gender.svg";
-import { validate } from "./validate";
-import styles from "./style/SignUp.module.css";
-import "react-toastify/dist/ReactToastify.css";
-import { ToastContainer, toast } from "react-toastify";
-import { notify } from "./toast";
-import { Link, useNavigate } from "react-router-dom";
-import axiosInstance from "../api/axiosInstance";
-import { SignUpData } from "./types";
 import maleAvatar from "./img/manAvatar.png";
 import femaleAvatar from "./img/womanAvatar.png";
-import Modal from 'react-modal';
-import axios from 'axios';
+import { validate } from "./validate";
+import { notify } from "./toast";
+import axiosInstance from "../api/axiosInstance";
+import { SignUpData, FieldErrorResponse, CheckResponse } from "./types";
 
 Modal.setAppElement('#root');
+
+function debounce<Args extends unknown[], R>(
+  func: (...args: Args) => R,
+  delay: number
+): (...args: Args) => void {
+  let timeoutId: ReturnType<typeof setTimeout>;
+  return (...args: Args) => {
+    if (timeoutId) clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => {
+      func(...args);
+    }, delay);
+  };
+}
 
 const SignUp: React.FC = () => {
   const navigate = useNavigate();
@@ -38,10 +51,72 @@ const SignUp: React.FC = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCheckingEmail, setIsCheckingEmail] = useState(false);
+  const [isCheckingUsername, setIsCheckingUsername] = useState(false);
+
+  const checkEmailExists = useCallback(async (email: string) => {
+    if (!email) return;
+    try {
+      setIsCheckingEmail(true);
+      const response = await axiosInstance.get<CheckResponse>('/api/auth/check-email', {
+        params: { email },
+      });
+      if (response.data.exists) {
+        setErrors(prevErrors => ({ ...prevErrors, email: "Email is already in use" }));
+      } else {
+        setErrors(prevErrors => {
+          const rest = { ...prevErrors };
+          delete rest.email;
+          return rest;
+        });
+      }
+    } catch (error) {
+      console.error('Error checking email:', error);
+      notify("Failed to check email uniqueness", "error");
+    } finally {
+      setIsCheckingEmail(false);
+    }
+  }, []);
+  const debouncedCheckEmailExists = useMemo(() => debounce(checkEmailExists, 500), [checkEmailExists]);
+
+  const checkUsernameExists = useCallback(async (username: string) => {
+    if (!username) return;
+    try {
+      setIsCheckingUsername(true);
+      const response = await axiosInstance.get<CheckResponse>('/api/auth/check-username', {
+        params: { username },
+      });
+      if (response.data.exists) {
+        setErrors(prevErrors => ({ ...prevErrors, username: "Username is already taken" }));
+      } else {
+        setErrors(prevErrors => {
+          const rest = { ...prevErrors };
+          delete rest.username;
+          return rest;
+        });
+      }
+    } catch (error) {
+      console.error('Error checking username:', error);
+      notify("Failed to check username uniqueness", "error");
+    } finally {
+      setIsCheckingUsername(false);
+    }
+  }, []);
+
+  const debouncedCheckUsernameExists = useMemo(() => debounce(checkUsernameExists, 500), [checkUsernameExists]);
 
   useEffect(() => {
-    setErrors(validate(data, "signUp"));
-  }, [data, touched]);
+    const localErrors = validate(data, "signUp");
+    setErrors(localErrors);
+
+    if (data.email && !localErrors.email) {
+      debouncedCheckEmailExists(data.email);
+    }
+    if (data.username && !localErrors.username) {
+      debouncedCheckUsernameExists(data.username);
+    }
+  }, [data, debouncedCheckEmailExists, debouncedCheckUsernameExists]);
+  
 
   const changeHandler = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const target = event.target;
@@ -69,7 +144,7 @@ const SignUp: React.FC = () => {
 
   const submitHandler = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!Object.keys(errors).length) {
+    if (Object.keys(errors).length === 0) {
       const pushData = async () => {
         try {
           let avatarFile: File;
@@ -114,11 +189,12 @@ const SignUp: React.FC = () => {
           
           notify("You signed up successfully", "success");
           setIsModalOpen(true);
-        } catch (error) {
+        } catch (error: unknown) {
           console.error('Error:', error);
-          if (axios.isAxiosError(error)) {
-            if (error.response?.status === 400) {
-              notify(error.response.data, "error");
+          if (axios.isAxiosError<FieldErrorResponse>(error)) { // Використання генеративного типу
+            if (error.response?.status === 400 && error.response.data?.errors) {
+              setErrors((prevErrors) => ({ ...prevErrors, ...error.response?.data.errors }));
+              notify("Please fix the errors in the form", "error");
             } else {
               notify("Something went wrong during the request", "error");
             }
@@ -149,7 +225,13 @@ const SignUp: React.FC = () => {
       <form className={styles.formLogin} onSubmit={submitHandler} autoComplete="off">
         <h2>Sign Up</h2>
         <div>
-          <div className={errors.username && touched.username ? styles.unCompleted : !errors.username && touched.username ? styles.completed : undefined}>
+          <div className={
+            errors.username && touched.username
+              ? styles.unCompleted
+              : !errors.username && touched.username
+                ? styles.completed
+                : undefined
+          }>
             <input
               type="text"
               name="username"
@@ -158,13 +240,21 @@ const SignUp: React.FC = () => {
               onChange={changeHandler}
               onFocus={focusHandler}
               autoComplete="off"
+              aria-invalid={!!errors.username}
             />
             <img src={userIcon} className={styles.icon} alt="User icon" />
           </div>
           {errors.username && touched.username && <span className={styles.error}>{errors.username}</span>}
+          {isCheckingUsername && <span className={styles.info}>Checking username...</span>}
         </div>
         <div>
-          <div className={errors.name && touched.name ? styles.unCompleted : !errors.name && touched.name ? styles.completed : undefined}>
+          <div className={
+            errors.name && touched.name
+              ? styles.unCompleted
+              : !errors.name && touched.name
+                ? styles.completed
+                : undefined
+          }>
             <input
               type="text"
               name="name"
@@ -173,13 +263,20 @@ const SignUp: React.FC = () => {
               onChange={changeHandler}
               onFocus={focusHandler}
               autoComplete="off"
+              aria-invalid={!!errors.name}
             />
             <img src={nameIcon} className={styles.icon} alt="Name icon" />
           </div>
           {errors.name && touched.name && <span className={styles.error}>{errors.name}</span>}
         </div>
         <div>
-          <div className={errors.surname && touched.surname ? styles.unCompleted : !errors.surname && touched.surname ? styles.completed : undefined}>
+          <div className={
+            errors.surname && touched.surname
+              ? styles.unCompleted
+              : !errors.surname && touched.surname
+                ? styles.completed
+                : undefined
+          }>
             <input
               type="text"
               name="surname"
@@ -188,34 +285,50 @@ const SignUp: React.FC = () => {
               onChange={changeHandler}
               onFocus={focusHandler}
               autoComplete="off"
+              aria-invalid={!!errors.surname}
             />
             <img src={surnameIcon} className={styles.icon} alt="Surname icon" />
           </div>
           {errors.surname && touched.surname && <span className={styles.error}>{errors.surname}</span>}
         </div>
         <div>
-          <div className={errors.email && touched.email ? styles.unCompleted : !errors.email && touched.email ? styles.completed : undefined}>
+          <div className={
+            errors.email && touched.email
+              ? styles.unCompleted
+              : !errors.email && touched.email
+                ? styles.completed
+                : undefined
+          }>
             <input
-              type="text"
+              type="email" // Використання типу email для кращої валідації
               name="email"
               value={data.email}
               placeholder="E-mail"
               onChange={changeHandler}
               onFocus={focusHandler}
               autoComplete="off"
+              aria-invalid={!!errors.email}
             />
-            <img src={emailIcon} alt="Email icon" />
+            <img src={emailIcon} className={styles.icon} alt="Email icon" />
           </div>
           {errors.email && touched.email && <span className={styles.error}>{errors.email}</span>}
+          {isCheckingEmail && <span className={styles.info}>Checking email...</span>}
         </div>
         <div>
-          <div className={errors.gender && touched.gender ? styles.unCompleted : !errors.gender && touched.gender ? styles.completed : styles.selectContainer}>
+          <div className={
+            errors.gender && touched.gender
+              ? styles.unCompleted
+              : !errors.gender && touched.gender
+                ? styles.completed
+                : styles.selectContainer
+          }>
             <select
               name="gender"
               value={data.gender}
               onChange={changeHandler}
               onFocus={focusHandler}
               className={styles.select}
+              aria-invalid={!!errors.gender}
             >
               <option value="">Select Gender</option>
               <option value="MALE">Male</option>
@@ -226,7 +339,13 @@ const SignUp: React.FC = () => {
           {errors.gender && touched.gender && <span className={styles.error}>{errors.gender}</span>}
         </div>
         <div>
-          <div className={errors.dateOfBirth && touched.dateOfBirth ? styles.unCompleted : !errors.dateOfBirth && touched.dateOfBirth ? styles.completed : undefined}>
+          <div className={
+            errors.dateOfBirth && touched.dateOfBirth
+              ? styles.unCompleted
+              : !errors.dateOfBirth && touched.dateOfBirth
+                ? styles.completed
+                : undefined
+          }>
             <input
               type="date"
               name="dateOfBirth"
@@ -238,13 +357,20 @@ const SignUp: React.FC = () => {
               style={{
                 color: data.dateOfBirth ? '#000' : '#bfbbbb',
               }}
+              aria-invalid={!!errors.dateOfBirth}
             />
             <img src={dateIcon} alt="Date icon" />
           </div>
           {errors.dateOfBirth && touched.dateOfBirth && <span className={styles.error}>{errors.dateOfBirth}</span>}
         </div>
         <div>
-          <div className={errors.password && touched.password ? styles.unCompleted : !errors.password && touched.password ? styles.completed : undefined}>
+          <div className={
+            errors.password && touched.password
+              ? styles.unCompleted
+              : !errors.password && touched.password
+                ? styles.completed
+                : undefined
+          }>
             <input
               type="password"
               name="password"
@@ -253,13 +379,20 @@ const SignUp: React.FC = () => {
               onChange={changeHandler}
               onFocus={focusHandler}
               autoComplete="off"
+              aria-invalid={!!errors.password}
             />
-            <img src={passwordIcon} alt="Password icon" />
+            <img src={passwordIcon} className={styles.icon} alt="Password icon" />
           </div>
           {errors.password && touched.password && <span className={styles.error}>{errors.password}</span>}
         </div>
         <div>
-          <div className={errors.confirmPassword && touched.confirmPassword ? styles.unCompleted : !errors.confirmPassword && touched.confirmPassword ? styles.completed : undefined}>
+          <div className={
+            errors.confirmPassword && touched.confirmPassword
+              ? styles.unCompleted
+              : !errors.confirmPassword && touched.confirmPassword
+                ? styles.completed
+                : undefined
+          }>
             <input
               type="password"
               name="confirmPassword"
@@ -268,8 +401,9 @@ const SignUp: React.FC = () => {
               onChange={changeHandler}
               onFocus={focusHandler}
               autoComplete="off"
+              aria-invalid={!!errors.confirmPassword}
             />
-            <img src={passwordIcon} alt="Password icon" />
+            <img src={passwordIcon} className={styles.icon} alt="Password icon" />
           </div>
           {errors.confirmPassword && touched.confirmPassword && <span className={styles.error}>{errors.confirmPassword}</span>}
         </div>
@@ -288,8 +422,8 @@ const SignUp: React.FC = () => {
           {errors.IsAccepted && touched.IsAccepted && <span className={styles.error}>{errors.IsAccepted}</span>}
         </div>
         <div>
-          <button type="submit">Create Account</button>
-          <span style={{ color: "#a29494", textAlign: "center", display: "inline-block", width: "100%" }}>
+          <button type="submit" className={styles.submitButton}>Create Account</button>
+          <span className={styles.loginText}>
             Already have an account? <Link to="/login">Sign In</Link>
           </span>
         </div>
@@ -306,7 +440,7 @@ const SignUp: React.FC = () => {
           A verification email has been sent to your email address. Please check your inbox and click on the verification
           link to activate your account.
         </p>
-        <button onClick={() => navigate('/login')}>Go to Login</button>
+        <button onClick={() => navigate('/login')} className={styles.modalButton}>Go to Login</button>
       </Modal>
       <ToastContainer />
     </div>
