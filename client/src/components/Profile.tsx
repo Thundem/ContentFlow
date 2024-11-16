@@ -39,7 +39,7 @@ const Profile: React.FC = () => {
                     </div>
                     <div className="content-2">
                         <p>Email: {userData.email}</p>
-                        <p>Gender: {userData.gender}</p>
+                        <p>Full Name: {userData.name} {userData.surname}</p>
                         <p>Date of Birth: {new Date(userData.dateOfBirth).toLocaleDateString()}</p>
                     </div>
                 </div>
