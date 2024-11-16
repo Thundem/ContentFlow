@@ -36,6 +36,9 @@ public class User {
 
     private String avatarUrl;
 
+    @Column(nullable = true)
+    private String avatarPublicId;
+
     @Enumerated(EnumType.STRING)
     private Role role;
 
