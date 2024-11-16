@@ -27,13 +27,22 @@ public class CloudinaryService {
         ));
     }
 
-    public String uploadAvatar(MultipartFile file) {
+    public Map<String, Object> uploadAvatar(MultipartFile file) {
         try {
-            Map uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
-            return (String) uploadResult.get("secure_url");
+            Map<String, Object> uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
+            return uploadResult;
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException("Failed to upload avatar to Cloudinary");
+        }
+    }
+
+    public void deleteAvatar(String publicId) {
+        try {
+            cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap());
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Failed to delete avatar from Cloudinary");
         }
     }
 
