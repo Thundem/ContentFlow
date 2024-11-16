@@ -28,6 +28,10 @@ public class VerificationTokenService {
         return verificationTokenRepository.findByToken(token);
     }
 
+    public VerificationToken getVerificationTokenByUser(User user) {
+        return verificationTokenRepository.findByUser(user);
+    }
+
     public void deleteVerificationToken(Long id) {
         verificationTokenRepository.deleteById(id);
     }
