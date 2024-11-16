@@ -1,6 +1,7 @@
 package com.coursework.ContentFlow.controllers;
 
 import com.coursework.ContentFlow.configurations.JwtUtil;
+import com.coursework.ContentFlow.models.FieldErrorResponse;
 import com.coursework.ContentFlow.models.RegisterRequest;
 import com.coursework.ContentFlow.models.User;
 import com.coursework.ContentFlow.models.VerificationToken;
@@ -21,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -56,17 +58,22 @@ public class AuthController {
             Gender gender = registerRequest.getGender();
             LocalDate dateOfBirth = registerRequest.getDateOfBirth();
 
+            Map<String, String> errors = new HashMap<>();
+
             if (userService.getUserByEmail(email) != null) {
-                return ResponseEntity.badRequest().body("Email is already in use");
+                errors.put("email", "Email is already in use");
             }
 
             if (userService.getUserByUsername(username) != null) {
-                return ResponseEntity.badRequest().body("Username is already taken");
+                errors.put("username", "Username is already taken");
             }
 
             if (username == null || email == null || name == null || surname == null || password == null || gender == null || dateOfBirth == null) {
-                logger.warn("Missing required parameters for registration");
-                return ResponseEntity.badRequest().body("Missing required parameters");
+                errors.put("general", "Missing required parameters");
+            }
+
+            if (!errors.isEmpty()) {
+                return ResponseEntity.badRequest().body(new FieldErrorResponse(errors));
             }
 
             logger.info("Registering user with email: {}", email);
@@ -95,7 +102,7 @@ public class AuthController {
             user.setPassword(password);
             user.setGender(gender);
             user.setDateOfBirth(dateOfBirth);
-            user.setRole(Role.valueOf("ADMIN"));
+            user.setRole(Role.USER);
             user.setEnabled(false);
 
             User createdUser = userService.registerUser(user);
@@ -105,8 +112,9 @@ public class AuthController {
             if (avatarFile != null && !avatarFile.isEmpty()) {
                 // Перевірка MIME-типу
                 String contentType = avatarFile.getContentType();
-                if (!contentType.equals("image/jpeg") && !contentType.equals("image/png")) {
-                    return ResponseEntity.badRequest().body("Invalid file type. Only JPEG and PNG are allowed.");
+                if (!"image/jpeg".equals(contentType) && !"image/png".equals(contentType)) {
+                    errors.put("avatar", "Invalid file type. Only JPEG and PNG are allowed.");
+                    return ResponseEntity.badRequest().body(new FieldErrorResponse(errors));
                 }
 
                 String avatarUrl = cloudinaryService.uploadAvatar(avatarFile);
@@ -114,7 +122,8 @@ public class AuthController {
                 userService.updateUser(createdUser);
             } else {
                 logger.warn("Avatar file is missing");
-                return ResponseEntity.badRequest().body("Avatar is required.");
+                errors.put("avatar", "Avatar is required.");
+                return ResponseEntity.badRequest().body(new FieldErrorResponse(errors));
             }
 
             // Створюємо токен підтвердження
@@ -159,16 +168,19 @@ public class AuthController {
         String email = request.get("email");
 
         if (email == null || email.isEmpty()) {
-            return ResponseEntity.badRequest().body("Email is required");
+            Map<String, String> errors = Map.of("email", "Email is required");
+            return ResponseEntity.badRequest().body(new FieldErrorResponse(errors));
         }
 
         User existingUser = userService.getUserByEmail(email);
         if (existingUser == null) {
-            return ResponseEntity.badRequest().body("User with this email does not exist");
+            Map<String, String> errors = Map.of("email", "User with this email does not exist");
+            return ResponseEntity.badRequest().body(new FieldErrorResponse(errors));
         }
 
         if (existingUser.isEnabled()) {
-            return ResponseEntity.badRequest().body("User is already verified");
+            Map<String, String> errors = Map.of("email", "User is already verified");
+            return ResponseEntity.badRequest().body(new FieldErrorResponse(errors));
         }
 
         // Створюємо новий токен підтвердження
@@ -213,6 +225,18 @@ public class AuthController {
 
         logger.warn("Invalid email or password for email: {}", email);
         return ResponseEntity.status(401).body("Invalid email or password");
+    }
+
+    @GetMapping("/check-email")
+    public ResponseEntity<?> checkEmail(@RequestParam("email") String email) {
+        boolean exists = userService.getUserByEmail(email) != null;
+        return ResponseEntity.ok(Map.of("exists", exists));
+    }
+
+    @GetMapping("/check-username")
+    public ResponseEntity<?> checkUsername(@RequestParam("username") String username) {
+        boolean exists = userService.getUserByUsername(username) != null;
+        return ResponseEntity.ok(Map.of("exists", exists));
     }
 
     @Data
