@@ -11,6 +11,7 @@ import com.coursework.ContentFlow.services.CloudinaryService;
 import com.coursework.ContentFlow.services.EmailService;
 import com.coursework.ContentFlow.services.UserService;
 import com.coursework.ContentFlow.services.VerificationTokenService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -29,7 +29,6 @@ import java.util.Map;
 @RequestMapping("/api/auth")
 public class AuthController {
     private final UserService userService;
-    private final CloudinaryService cloudinaryService;
     private final VerificationTokenService verificationTokenService;
     private final EmailService emailService;
     private final JwtUtil jwtUtil;
@@ -41,14 +40,13 @@ public class AuthController {
 
     public AuthController(UserService userService, CloudinaryService cloudinaryService, VerificationTokenService verificationTokenService, EmailService emailService, JwtUtil jwtUtil) {
         this.userService = userService;
-        this.cloudinaryService = cloudinaryService;
         this.verificationTokenService = verificationTokenService;
         this.emailService = emailService;
         this.jwtUtil = jwtUtil;
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@ModelAttribute RegisterRequest registerRequest) {
+    public ResponseEntity<?> registerUser(@ModelAttribute RegisterRequest registerRequest, HttpServletRequest request) {
         try {
             String username = registerRequest.getUsername();
             String email = registerRequest.getEmail();
@@ -84,10 +82,9 @@ public class AuthController {
                     logger.warn("Attempt to register with existing email: {}", email);
                     return ResponseEntity.badRequest().body("Email is already in use");
                 } else {
-                    // Користувач існує, але ще не підтвердив email
-                    // Повторно відправляємо лист з підтвердженням
                     VerificationToken newToken = verificationTokenService.createVerificationToken(existingUser);
-                    String verificationUrl = "http://localhost:8080/api/auth/verify?token=" + newToken.getToken();
+                    String baseUrl = getBaseUrl(request);
+                    String verificationUrl = baseUrl + "/verify?token=" + newToken.getToken();
                     emailService.sendVerificationEmail(existingUser.getEmail(), verificationUrl);
                     logger.info("Resent verification email to: {}", existingUser.getEmail());
                     return ResponseEntity.ok("A verification email has been resent to your email address. Please check your inbox.");
@@ -108,31 +105,10 @@ public class AuthController {
             User createdUser = userService.registerUser(user);
             logger.info("User registered with email: {}", email);
 
-            MultipartFile avatarFile = registerRequest.getAvatar();
-            if (avatarFile != null && !avatarFile.isEmpty()) {
-                // Перевірка MIME-типу
-                String contentType = avatarFile.getContentType();
-                if (!"image/jpeg".equals(contentType) && !"image/png".equals(contentType)) {
-                    errors.put("avatar", "Invalid file type. Only JPEG and PNG are allowed.");
-                    return ResponseEntity.badRequest().body(new FieldErrorResponse(errors));
-                }
-
-                String avatarUrl = cloudinaryService.uploadAvatar(avatarFile);
-                createdUser.setAvatarUrl(avatarUrl);
-                userService.updateUser(createdUser);
-            } else {
-                logger.warn("Avatar file is missing");
-                errors.put("avatar", "Avatar is required.");
-                return ResponseEntity.badRequest().body(new FieldErrorResponse(errors));
-            }
-
-            // Створюємо токен підтвердження
             VerificationToken verificationToken = verificationTokenService.createVerificationToken(createdUser);
+            String baseUrl = getBaseUrl(request);
+            String verificationUrl = baseUrl + "/verify?token=" + verificationToken.getToken();
 
-            // Генеруємо посилання для підтвердження
-            String verificationUrl = "http://localhost:8080/api/auth/verify?token=" + verificationToken.getToken();
-
-            // Відправляємо лист
             emailService.sendVerificationEmail(createdUser.getEmail(), verificationUrl);
 
             logger.info("Verification email sent to: {}", createdUser.getEmail());
@@ -154,17 +130,14 @@ public class AuthController {
         }
 
         User user = verificationToken.getUser();
-        user.setEnabled(true); // Потрібно додати поле 'enabled' до моделі User
+        user.setEnabled(true);
         userService.updateUser(user);
-
-        // Видаляємо токен після успішного підтвердження
-        verificationTokenService.deleteVerificationToken(verificationToken.getId());
 
         return ResponseEntity.ok("Email verified successfully. You can now log in.");
     }
 
     @PostMapping("/resend-verification")
-    public ResponseEntity<?> resendVerificationEmail(@RequestBody Map<String, String> request) {
+    public ResponseEntity<?> resendVerificationEmail(@RequestBody Map<String, String> request, HttpServletRequest httpRequest) {
         String email = request.get("email");
 
         if (email == null || email.isEmpty()) {
@@ -183,13 +156,10 @@ public class AuthController {
             return ResponseEntity.badRequest().body(new FieldErrorResponse(errors));
         }
 
-        // Створюємо новий токен підтвердження
         VerificationToken newToken = verificationTokenService.createVerificationToken(existingUser);
+        String baseUrl = getBaseUrl(httpRequest);
+        String verificationUrl = baseUrl + "/verify?token=" + newToken.getToken();
 
-        // Генеруємо посилання для підтвердження
-        String verificationUrl = "http://localhost:8080/api/auth/verify?token=" + newToken.getToken();
-
-        // Відправляємо лист
         emailService.sendVerificationEmail(existingUser.getEmail(), verificationUrl);
 
         logger.info("Resent verification email to: {}", existingUser.getEmail());
@@ -206,6 +176,11 @@ public class AuthController {
 
         if (!user.isEnabled()) {
             return ResponseEntity.status(403).body("Please verify your email before logging in.");
+        }
+
+        VerificationToken existingToken = verificationTokenService.getVerificationTokenByUser(user);
+        if (existingToken != null) {
+            verificationTokenService.deleteVerificationToken(existingToken.getId());
         }
 
         if (user == null) {
@@ -238,6 +213,20 @@ public class AuthController {
         boolean exists = userService.getUserByUsername(username) != null;
         return ResponseEntity.ok(Map.of("exists", exists));
     }
+
+    private String getBaseUrl(HttpServletRequest request) {
+        String scheme = request.getScheme();
+        String serverName = request.getServerName();
+        int serverPort = request.getServerPort();
+        String contextPath = request.getContextPath();
+
+        if (serverName.equals("localhost")) {
+            return scheme + "://" + serverName + ":5173" + contextPath;
+        } else {
+            return scheme + "://" + serverName + (serverPort != 80 && serverPort != 443 ? ":" + serverPort : "") + contextPath;
+        }
+    }
+
 
     @Data
     public static class JwtResponse {
