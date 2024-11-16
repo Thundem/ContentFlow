@@ -1,0 +1,54 @@
+.container {
+    max-width: 600px;
+    display: flex;
+    flex-direction: column;
+    margin: 0 auto;
+    margin-top: 5%;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+  
+h2 {
+    margin-bottom: 20px;
+    color: #333;
+}
+  
+.loading {
+    font-size: 18px;
+    color: #007bff;
+}
+  
+.error {
+    font-size: 16px;
+    color: #e74c3c;
+    margin: 20px 0;
+}
+  
+.success {
+    font-size: 16px;
+    color: #2ecc71;
+    margin: 20px 0;
+}
+  
+.button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    border: none;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 4px;
+    margin-top: 20px;
+}
+  
+.button:hover {
+    background-color: #0056b3;
+}
+  
+.button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}  
