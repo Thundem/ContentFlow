@@ -53,6 +53,7 @@ const SignUp: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCheckingEmail, setIsCheckingEmail] = useState(false);
   const [isCheckingUsername, setIsCheckingUsername] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const checkEmailExists = useCallback(async (email: string) => {
     if (!email) return;
@@ -77,6 +78,7 @@ const SignUp: React.FC = () => {
       setIsCheckingEmail(false);
     }
   }, []);
+  
   const debouncedCheckEmailExists = useMemo(() => debounce(checkEmailExists, 500), [checkEmailExists]);
 
   const checkUsernameExists = useCallback(async (username: string) => {
@@ -116,7 +118,6 @@ const SignUp: React.FC = () => {
       debouncedCheckUsernameExists(data.username);
     }
   }, [data, debouncedCheckEmailExists, debouncedCheckUsernameExists]);
-  
 
   const changeHandler = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const target = event.target;
@@ -146,6 +147,7 @@ const SignUp: React.FC = () => {
     event.preventDefault();
     if (Object.keys(errors).length === 0) {
       const pushData = async () => {
+        setIsSubmitting(true);
         try {
           let avatarFile: File;
           if (data.gender === "MALE") {
@@ -158,6 +160,7 @@ const SignUp: React.FC = () => {
             avatarFile = new File([blob], "femaleAvatar.png", { type: "image/png" });
           } else {
             notify("Please select a gender", "error");
+            setIsSubmitting(false);
             return;
           }
 
@@ -186,12 +189,12 @@ const SignUp: React.FC = () => {
               error: "Something went wrong!",
             }
           );
-          
+
           notify("You signed up successfully", "success");
           setIsModalOpen(true);
         } catch (error: unknown) {
           console.error('Error:', error);
-          if (axios.isAxiosError<FieldErrorResponse>(error)) { // Використання генеративного типу
+          if (axios.isAxiosError<FieldErrorResponse>(error)) {
             if (error.response?.status === 400 && error.response.data?.errors) {
               setErrors((prevErrors) => ({ ...prevErrors, ...error.response?.data.errors }));
               notify("Please fix the errors in the form", "error");
@@ -201,6 +204,8 @@ const SignUp: React.FC = () => {
           } else {
             notify("An unexpected error occurred", "error");
           }
+        } finally {
+          setIsSubmitting(false);
         }
       };
       pushData();
@@ -300,7 +305,7 @@ const SignUp: React.FC = () => {
                 : undefined
           }>
             <input
-              type="email" // Використання типу email для кращої валідації
+              type="email"
               name="email"
               value={data.email}
               placeholder="E-mail"
@@ -421,9 +426,12 @@ const SignUp: React.FC = () => {
           </div>
           {errors.IsAccepted && touched.IsAccepted && <span className={styles.error}>{errors.IsAccepted}</span>}
         </div>
-        <div>
-          <button type="submit" className={styles.submitButton}>Create Account</button>
-          <span className={styles.loginText}>
+        <div className={styles.loginText}>
+          <button type="submit" className={styles.submitButton} disabled={isSubmitting}>
+            {isSubmitting ? <span>Creating...</span> : "Create Account"}
+            {isSubmitting && <span className={styles.spinner}></span>}
+          </button>
+          <span>
             Already have an account? <Link to="/login">Sign In</Link>
           </span>
         </div>
