@@ -7,6 +7,7 @@ import "react-toastify/dist/ReactToastify.css";
 import styles from "./style/CreatePost.module.css";
 import TextareaAutosize from "react-textarea-autosize";
 import { PostData, CloudinarySignatureResponse } from "./types";
+import { useDropzone } from "react-dropzone";
 
 const CreatePost: React.FC = () => {
   const navigate = useNavigate();
@@ -15,10 +16,9 @@ const CreatePost: React.FC = () => {
   const [mediaPreviewUrl, setMediaPreviewUrl] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const handleMediaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (files && files.length > 0) {
-      const file = files[0];
+  const onDrop = (acceptedFiles: File[]) => {
+    if (acceptedFiles && acceptedFiles.length > 0) {
+      const file = acceptedFiles[0];
       setMediaFile(file);
 
       const reader = new FileReader();
@@ -28,6 +28,15 @@ const CreatePost: React.FC = () => {
       reader.readAsDataURL(file);
     }
   };
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: {
+      "image/*": [],
+      "video/*": [],
+    },
+    multiple: false,
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -96,7 +105,6 @@ const CreatePost: React.FC = () => {
       <h2>Create New Content</h2>
       <form onSubmit={handleSubmit} className={styles.form}>
         <div className={styles.formGroup}>
-          <label>Content:</label>
           <TextareaAutosize
             value={content}
             onChange={(e) => setContent(e.target.value)}
@@ -105,9 +113,9 @@ const CreatePost: React.FC = () => {
             minRows={3}
           />
         </div>
-        <div className={styles.formGroup}>
-          <label htmlFor="media">Select Media:</label>
-          <input type="file" accept="image/*,video/*" onChange={handleMediaChange} />
+        <div {...getRootProps()} className={`${styles.dropArea} ${isDragActive ? styles.dragging : ""}`}>
+          <input {...getInputProps()} />
+          <p>Drop your photo/video here or click to select</p>
         </div>
         {mediaPreviewUrl && (
           <div className={styles.preview}>
