@@ -46,17 +46,12 @@
     box-sizing: border-box;
 }
 
-.formLogin select,
-.formLogin input[type="date"] {
+.formLogin select {
     appearance: none;
     background-repeat: no-repeat;
     background-position: right 10px center;
     background-size: 16px;
-}
-
-.formLogin select {
-    background-image: url('../img/arrow-down.svg');
-    padding-right: 40px;
+    color: #bfbbbb;
 }
 
 .formLogin input[type="text"]:focus,
@@ -78,6 +73,10 @@
 .completed > input[type="date"] {
     border: 1px solid #42ba96 !important;
     position: relative;
+}
+
+.completed .select {
+    color: #000;
 }
 
 .unCompleted::after,

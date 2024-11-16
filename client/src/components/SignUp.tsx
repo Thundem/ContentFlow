@@ -209,7 +209,7 @@ const SignUp: React.FC = () => {
           {errors.email && touched.email && <span className={styles.error}>{errors.email}</span>}
         </div>
         <div>
-          <div className={errors.gender && touched.gender ? styles.unCompleted : !errors.gender && touched.gender ? styles.completed : undefined}>
+          <div className={errors.gender && touched.gender ? styles.unCompleted : !errors.gender && touched.gender ? styles.completed : styles.selectContainer}>
             <select
               name="gender"
               value={data.gender}
@@ -234,6 +234,10 @@ const SignUp: React.FC = () => {
               onChange={changeHandler}
               onFocus={focusHandler}
               className={styles.dateInput}
+              placeholder="DD/MM/YYYY"
+              style={{
+                color: data.dateOfBirth ? '#000' : '#bfbbbb',
+              }}
             />
             <img src={dateIcon} alt="Date icon" />
           </div>
