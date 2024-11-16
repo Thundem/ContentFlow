@@ -47,9 +47,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         String email = null;
         String jwtToken = null;
 
-        // Логування заголовків для діагностики
         Enumeration<String> headerNames = request.getHeaderNames();
-        System.out.println("Headers:");
         while (headerNames.hasMoreElements()) {
             String headerName = headerNames.nextElement();
             System.out.println(headerName + ": " + request.getHeader(headerName));
