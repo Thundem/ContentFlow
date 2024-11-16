@@ -22,6 +22,8 @@ public class User {
     @Column(name = "user_id")
     private Long id;
     private String username;
+    private String name;
+    private String surname;
     private String password;
 
     @Column(unique = true, nullable = false)
@@ -36,6 +38,9 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    @Column(nullable = false)
+    private boolean enabled = false;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Post> posts;
