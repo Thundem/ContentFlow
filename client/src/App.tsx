@@ -8,17 +8,19 @@ import CreatePost from './components/CreatePost';
 import PageNotFound from './components/PageNotFound';
 import PrivateRoute from './components/PrivateRoute';
 import Profile from './components/Profile';
+import ResendVerification from "./components/ResendVerification";
 
 const App: React.FC = () => {
     return (
         <div className="App">
             <Header />
             <Routes>
-                <Route path="/" element={<PrivateRoute element={<PostList />} />} />
+                <Route path="/" element={<PostList />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<SignUp />} />
-                <Route path="/create" element={<CreatePost />} />
-                <Route path="/users/:username" element={<Profile />} />
+                <Route path="/create" element={<PrivateRoute element={<CreatePost />} />} />
+                <Route path="/users/:username" element={<PrivateRoute element={<Profile />} />} />
+                <Route path="/resend-verification" element={<ResendVerification />} />
                 <Route path="*" element={<PageNotFound />} />
             </Routes>
         </div>

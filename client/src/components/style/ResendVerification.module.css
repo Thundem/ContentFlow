@@ -1,0 +1,102 @@
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f5f5f5;
+}
+
+.resend {
+    background: #fff;
+    box-shadow: var(--box-shadow);
+    border: 1px solid var(--secondary-color);
+    padding: 25px;
+    border-radius: 11px;
+    min-width: 300px;
+    max-width: 400px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.resend > h2 {
+    margin-bottom: 20px;
+    color: var(--main-color);
+    text-align: center;
+    font-size: 1.5rem;
+}
+
+.resend > div {
+    margin-bottom: 15px;
+}
+
+.resend > div > div {
+    position: relative;
+    width: 100%;
+}
+
+.resend input[type="email"] {
+    background: #fff;
+    border-radius: 4px;
+    outline: 0;
+    border: 1px solid var(--secondary-color);
+    box-shadow: var(--box-shadow);
+    padding: 12px 10px;
+    width: 100%;
+    font-family: Arial, Helvetica, sans-serif;
+    transition: all 0.3s ease-in-out;
+    box-sizing: border-box;
+}
+
+.resend input[type="email"]:focus {
+    border: 1px solid var(--main-color);
+}
+
+.resend ::placeholder {
+    color: #bfbbbb;
+    font-size: 14px;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.resend > div span.error {
+    display: block;
+    margin-top: 5px;
+    font-size: 0.8rem;
+    color: red;
+    line-height: 1.2;
+    padding: 5px 3px;
+    border-radius: 3px;
+    background-color: rgba(255, 0, 0, 0.175);
+}
+
+.resend button[type="submit"] {
+    display: block;
+    text-align: center;
+    width: 100%;
+    border-radius: 8px;
+    outline: 0;
+    border: none;
+    color: #fff;
+    padding: 12px;
+    margin: 15px 0;
+    background: var(--main-color);
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+    font-size: 1rem;
+}
+
+.resend button[type="submit"]:hover {
+    background: var(--main-color-hover);
+    cursor: pointer;
+}
+
+@media (max-width: 568px) {
+    .resend {
+        padding: 16px;
+    }
+    .resend input[type="email"] {
+        padding: 10px;
+    }
+    .resend button[type="submit"] {
+        padding: 10px;
+    }
+}
