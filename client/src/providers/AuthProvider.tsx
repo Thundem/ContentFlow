@@ -3,15 +3,16 @@ import { AuthContext } from '../context/AuthContext';
 import axiosInstance from '../api/axiosInstance';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { User, AuthContextType } from '../components/types';
 
 interface AuthProviderProps {
     children: React.ReactNode;
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [isLoading, setIsLoading] = useState(true);
-    const [user, setUser] = useState<{ id: number; username: string; email: string; avatarUrl: string } | null>(null);
+    const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+    const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [user, setUser] = useState<User | null>(null);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -22,7 +23,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                 console.log('AuthProvider: User is authenticated');
 
                 try {
-                    const response = await axiosInstance.get('/api/users/me');
+                    const response = await axiosInstance.get<User>('/api/users/me');
                     setUser(response.data);
                 } catch (error) {
                     console.error('AuthProvider: Error fetching user data', error);
@@ -45,7 +46,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         try {
             localStorage.setItem('token', token);
             setIsAuthenticated(true);
-            const response = await axiosInstance.get('/api/users/me');
+            const response = await axiosInstance.get<User>('/api/users/me');
             setUser(response.data);
             toast.success("You logged into your account successfully");
             navigate("/");
@@ -67,9 +68,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         navigate("/login");
     };
 
+    const updateUser = (updatedUser: Partial<User>) => {
+        setUser((prevUser) => prevUser ? { ...prevUser, ...updatedUser } : prevUser);
+    };
+
+    const contextValue: AuthContextType = {
+        isAuthenticated,
+        isLoading,
+        user,
+        login,
+        logout,
+        updateUser,
+    };
+
     return (
-        <AuthContext.Provider value={{ isAuthenticated, isLoading, user, login, logout }}>
+        <AuthContext.Provider value={contextValue}>
             {children}
         </AuthContext.Provider>
     );
 };
+
+export default AuthProvider;

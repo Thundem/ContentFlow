@@ -43,14 +43,10 @@ export interface PostProps {
 export interface AuthContextType {
     isAuthenticated: boolean;
     isLoading: boolean;
-    user: {
-        id: number;
-        username: string;
-        email: string;
-        avatarUrl: string;
-    } | null;
+    user: User | null;
     login: (token: string) => Promise<void>;
     logout: () => void;
+    updateUser: (updatedUser: Partial<User>) => void;
 }
 
 export interface CloudinarySignatureResponse {
@@ -79,4 +75,9 @@ export interface FieldErrorResponse {
 
 export interface CheckResponse {
     exists: boolean;
+}
+
+export interface EditableField {
+    isEditing: boolean;
+    value: string;
 }
