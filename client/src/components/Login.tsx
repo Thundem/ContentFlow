@@ -5,6 +5,7 @@ import passwordIcon from "./img/password.svg";
 import styles from "./style/SignUp.module.css";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import axios from 'axios';
 import { notify } from "./toast";
 import { Link, useNavigate } from "react-router-dom";
 import { LoginData } from "./types";
@@ -63,7 +64,19 @@ const Login: React.FC = () => {
 
   const submitHandler = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    checkData(data);
+    try {
+      checkData(data);
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status === 403) {
+          notify("Please verify your email before logging in", "error");
+        } else {
+          notify("Invalid email or password", "error");
+        }
+      } else {
+        notify("An unexpected error occurred", "error");
+      }
+    }
   };
 
   return (
@@ -105,6 +118,9 @@ const Login: React.FC = () => {
             Don't have an account? <Link to="/register">Create account</Link>
           </span>
         </div>
+        <p style={{ color: "#a29494", textAlign: "center", display: "inline-block", width: "100%" }}>
+          Didn't receive a verification email? <Link to="/resend-verification">Resend Verification Email</Link>
+        </p>
       </form>
       <ToastContainer />
     </div>
