@@ -11,7 +11,7 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
-    const [user, setUser] = useState<{ id: number; username: string; email: string } | null>(null);
+    const [user, setUser] = useState<{ id: number; username: string; email: string; avatarUrl: string } | null>(null);
     const navigate = useNavigate();
 
     useEffect(() => {
