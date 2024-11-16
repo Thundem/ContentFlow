@@ -3,6 +3,8 @@ import './/style/Header.css';
 import { useAuth } from '../hooks/useAuth';
 import { Link, useLocation } from 'react-router-dom';
 import '@fortawesome/fontawesome-free/css/all.min.css';
+import manAvatar from './img/manAvatar.png';
+import womanAvatar from './img/womanAvatar.png';
 
 const Header: React.FC = () => {
     const { isAuthenticated, isLoading, user, logout } = useAuth();
@@ -97,7 +99,17 @@ const Header: React.FC = () => {
                     )}
                     {isAuthenticated && user ? (
                         <div className="header-user-menu" onClick={toggleDropdown} ref={menuRef}>
-                            <img src={user.avatarUrl} alt="User Avatar" className="header-avatar" />
+                            <img
+                                src={
+                                    user.avatarUrl
+                                    ? user.avatarUrl
+                                    : user.gender === 'MALE'
+                                    ? manAvatar
+                                    : womanAvatar
+                                }
+                                alt="User Avatar"
+                                className="header-avatar"
+                            />
                             <span className="header-username">{user.username}</span>
                             {isDropdownOpen && (
                                 <div className="dropdown-menu">

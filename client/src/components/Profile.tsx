@@ -3,6 +3,8 @@ import axiosInstance from "../api/axiosInstance";
 import { useParams } from "react-router-dom";
 import { User } from "./types";
 import "./style/Profile.css";
+import manAvatar from './img/manAvatar.png';
+import womanAvatar from './img/womanAvatar.png';
 
 const Profile: React.FC = () => {
     const { username } = useParams<{ username: string }>();
@@ -33,7 +35,17 @@ const Profile: React.FC = () => {
                 <div className="content">
                     <div className="content-1">
                         {userData.avatarUrl && (
-                            <img src={userData.avatarUrl} alt={`${userData.username}'s avatar`} style={{ width: '150px', height: '150px', borderRadius: '50%' }} />
+                            <img
+                                src={
+                                userData.avatarUrl
+                                    ? userData.avatarUrl
+                                    : userData.gender === 'MALE'
+                                    ? manAvatar
+                                    : womanAvatar
+                                }
+                                alt={`${userData.username}'s avatar`}
+                                style={{ width: '150px', height: '150px', borderRadius: '50%' }}
+                            />
                         )}
                         <h2 className="username">{userData.username}</h2>
                     </div>

@@ -12,8 +12,6 @@ import emailIcon from "./img/email.svg";
 import passwordIcon from "./img/password.svg";
 import dateIcon from "./img/date-of-birth.svg";
 import genderIcon from "./img/gender.svg";
-import maleAvatar from "./img/manAvatar.png";
-import femaleAvatar from "./img/womanAvatar.png";
 import { validate } from "./validate";
 import { notify } from "./toast";
 import axiosInstance from "../api/axiosInstance";
@@ -149,21 +147,6 @@ const SignUp: React.FC = () => {
       const pushData = async () => {
         setIsSubmitting(true);
         try {
-          let avatarFile: File;
-          if (data.gender === "MALE") {
-            const response = await fetch(maleAvatar);
-            const blob = await response.blob();
-            avatarFile = new File([blob], "maleAvatar.png", { type: "image/png" });
-          } else if (data.gender === "FEMALE") {
-            const response = await fetch(femaleAvatar);
-            const blob = await response.blob();
-            avatarFile = new File([blob], "femaleAvatar.png", { type: "image/png" });
-          } else {
-            notify("Please select a gender", "error");
-            setIsSubmitting(false);
-            return;
-          }
-
           const formData = new FormData();
           formData.append("username", data.username);
           formData.append("email", data.email.toLowerCase());
@@ -172,14 +155,9 @@ const SignUp: React.FC = () => {
           formData.append("password", data.password);
           formData.append("gender", data.gender);
           formData.append("dateOfBirth", data.dateOfBirth);
-          formData.append("avatar", avatarFile);
 
           const urlApi = `/api/auth/register`;
-          const response = await axiosInstance.post(urlApi, formData, {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          });
+          const response = await axiosInstance.post(urlApi, formData);
 
           toast.promise(
             Promise.resolve(response.data),
