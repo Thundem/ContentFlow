@@ -9,6 +9,8 @@ import PageNotFound from './components/PageNotFound';
 import PrivateRoute from './components/PrivateRoute';
 import Profile from './components/Profile';
 import ResendVerification from "./components/ResendVerification";
+import Settings from './components/Settings';
+import Verify from './components/Verify';
 
 const App: React.FC = () => {
     return (
@@ -20,7 +22,9 @@ const App: React.FC = () => {
                 <Route path="/register" element={<SignUp />} />
                 <Route path="/create" element={<PrivateRoute element={<CreatePost />} />} />
                 <Route path="/users/:username" element={<PrivateRoute element={<Profile />} />} />
+                <Route path="/settings" element={<PrivateRoute element={<Settings />} />} />
                 <Route path="/resend-verification" element={<ResendVerification />} />
+                <Route path="/verify" element={<Verify />} />
                 <Route path="*" element={<PageNotFound />} />
             </Routes>
         </div>
