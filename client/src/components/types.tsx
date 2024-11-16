@@ -6,6 +6,8 @@ export interface LoginData {
 export interface SignUpData {
     username: string;
     email: string;
+    name: string;
+    surname: string;
     password: string;
     confirmPassword: string;
     IsAccepted: boolean;
@@ -45,6 +47,7 @@ export interface AuthContextType {
         id: number;
         username: string;
         email: string;
+        avatarUrl: string;
     } | null;
     login: (token: string) => Promise<void>;
     logout: () => void;
@@ -60,6 +63,8 @@ export interface CloudinarySignatureResponse {
 export interface User {
     id: number;
     username: string;
+    name: string;
+    surname: string;
     email: string;
     avatarUrl: string;
     gender: 'MALE' | 'FEMALE';

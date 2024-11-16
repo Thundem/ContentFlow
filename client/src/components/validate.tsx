@@ -27,6 +27,23 @@ export const validate = (data: LoginData | SignUpData, type: "login" | "signUp")
       } else {
         delete errors.username;
       }
+
+      if (!signUpData.name.trim()) {
+        errors.name = "Name is Required!";
+      } else if (!/^[A-Z][a-z]+$/.test(signUpData.name)) {
+        errors.name = "Name must start with a capital letter!";
+      }
+      else {
+        delete errors.name;
+      }
+
+      if (!signUpData.surname.trim()) {
+        errors.surname = "Surname is Required!";
+      } else if (!/^[A-Z][a-z]+$/.test(signUpData.surname)) {
+        errors.surname = "Surname must start with a capital letter!";
+      }else {
+        delete errors.surname;
+      }
   
       if (!signUpData.confirmPassword) {
         errors.confirmPassword = "Confirm the Password";

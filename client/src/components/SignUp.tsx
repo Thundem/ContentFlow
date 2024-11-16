@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from "react";
 import userIcon from "./img/user.svg";
+import nameIcon from "./img/name.svg";
+import surnameIcon from "./img/surname.svg";
 import emailIcon from "./img/email.svg";
 import passwordIcon from "./img/password.svg";
+import dateIcon from "./img/date-of-birth.svg";
+import genderIcon from "./img/gender.svg";
 import { validate } from "./validate";
 import styles from "./style/SignUp.module.css";
 import "react-toastify/dist/ReactToastify.css";
@@ -12,12 +16,18 @@ import axiosInstance from "../api/axiosInstance";
 import { SignUpData } from "./types";
 import maleAvatar from "./img/manAvatar.png";
 import femaleAvatar from "./img/womanAvatar.png";
+import Modal from 'react-modal';
+import axios from 'axios';
+
+Modal.setAppElement('#root');
 
 const SignUp: React.FC = () => {
   const navigate = useNavigate();
   const [data, setData] = useState<SignUpData>({
     username: "",
     email: "",
+    name: "",
+    surname: "",
     password: "",
     confirmPassword: "",
     IsAccepted: false,
@@ -27,6 +37,7 @@ const SignUp: React.FC = () => {
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     setErrors(validate(data, "signUp"));
@@ -37,17 +48,17 @@ const SignUp: React.FC = () => {
     const name = target.name;
 
     if (target instanceof HTMLInputElement && target.type === "checkbox") {
-        const checked = target.checked;
-        setData((prevData) => ({
-            ...prevData,
-            [name]: checked,
-        }));
+      const checked = target.checked;
+      setData((prevData) => ({
+        ...prevData,
+        [name]: checked,
+      }));
     } else {
-        const value = target.value;
-        setData((prevData) => ({
-            ...prevData,
-            [name]: value,
-        }));
+      const value = target.value;
+      setData((prevData) => ({
+        ...prevData,
+        [name]: value,
+      }));
     }
   };
 
@@ -78,6 +89,8 @@ const SignUp: React.FC = () => {
           const formData = new FormData();
           formData.append("username", data.username);
           formData.append("email", data.email.toLowerCase());
+          formData.append("name", data.name);
+          formData.append("surname", data.surname);
           formData.append("password", data.password);
           formData.append("gender", data.gender);
           formData.append("dateOfBirth", data.dateOfBirth);
@@ -98,12 +111,20 @@ const SignUp: React.FC = () => {
               error: "Something went wrong!",
             }
           );
-
+          
           notify("You signed up successfully", "success");
-          navigate("/login");
+          setIsModalOpen(true);
         } catch (error) {
           console.error('Error:', error);
-          notify("Something went wrong during the request", "error");
+          if (axios.isAxiosError(error)) {
+            if (error.response?.status === 400) {
+              notify(error.response.data, "error");
+            } else {
+              notify("Something went wrong during the request", "error");
+            }
+          } else {
+            notify("An unexpected error occurred", "error");
+          }
         }
       };
       pushData();
@@ -112,6 +133,8 @@ const SignUp: React.FC = () => {
       setTouched({
         username: true,
         email: true,
+        name: true,
+        surname: true,
         password: true,
         confirmPassword: true,
         IsAccepted: true,
@@ -136,9 +159,39 @@ const SignUp: React.FC = () => {
               onFocus={focusHandler}
               autoComplete="off"
             />
-            <img src={userIcon} alt="User icon" />
+            <img src={userIcon} className={styles.icon} alt="User icon" />
           </div>
           {errors.username && touched.username && <span className={styles.error}>{errors.username}</span>}
+        </div>
+        <div>
+          <div className={errors.name && touched.name ? styles.unCompleted : !errors.name && touched.name ? styles.completed : undefined}>
+            <input
+              type="text"
+              name="name"
+              value={data.name}
+              placeholder="Name"
+              onChange={changeHandler}
+              onFocus={focusHandler}
+              autoComplete="off"
+            />
+            <img src={nameIcon} className={styles.icon} alt="Name icon" />
+          </div>
+          {errors.name && touched.name && <span className={styles.error}>{errors.name}</span>}
+        </div>
+        <div>
+          <div className={errors.surname && touched.surname ? styles.unCompleted : !errors.surname && touched.surname ? styles.completed : undefined}>
+            <input
+              type="text"
+              name="surname"
+              value={data.surname}
+              placeholder="Surname"
+              onChange={changeHandler}
+              onFocus={focusHandler}
+              autoComplete="off"
+            />
+            <img src={surnameIcon} className={styles.icon} alt="Surname icon" />
+          </div>
+          {errors.surname && touched.surname && <span className={styles.error}>{errors.surname}</span>}
         </div>
         <div>
           <div className={errors.email && touched.email ? styles.unCompleted : !errors.email && touched.email ? styles.completed : undefined}>
@@ -162,11 +215,13 @@ const SignUp: React.FC = () => {
               value={data.gender}
               onChange={changeHandler}
               onFocus={focusHandler}
+              className={styles.select}
             >
               <option value="">Select Gender</option>
               <option value="MALE">Male</option>
               <option value="FEMALE">Female</option>
             </select>
+            <img src={genderIcon} alt="Gender icon" />
           </div>
           {errors.gender && touched.gender && <span className={styles.error}>{errors.gender}</span>}
         </div>
@@ -178,7 +233,9 @@ const SignUp: React.FC = () => {
               value={data.dateOfBirth}
               onChange={changeHandler}
               onFocus={focusHandler}
+              className={styles.dateInput}
             />
+            <img src={dateIcon} alt="Date icon" />
           </div>
           {errors.dateOfBirth && touched.dateOfBirth && <span className={styles.error}>{errors.dateOfBirth}</span>}
         </div>
@@ -233,6 +290,20 @@ const SignUp: React.FC = () => {
           </span>
         </div>
       </form>
+      <Modal
+        isOpen={isModalOpen}
+        onRequestClose={() => setIsModalOpen(false)}
+        contentLabel="Email Verification"
+        className={styles.modal}
+        overlayClassName={styles.overlay}
+      >
+        <h2>Verify Your Email</h2>
+        <p>
+          A verification email has been sent to your email address. Please check your inbox and click on the verification
+          link to activate your account.
+        </p>
+        <button onClick={() => navigate('/login')}>Go to Login</button>
+      </Modal>
       <ToastContainer />
     </div>
   );

@@ -1,3 +1,10 @@
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
 .formLogin {
     background: #fff;
     box-shadow: var(--box-shadow);
@@ -5,13 +12,6 @@
     padding: 25px;
     border-radius: 11px;
     min-width: 500px;
-}
-
-.container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
 }
 
 .formLogin > h2 {
@@ -26,11 +26,14 @@
 
 .formLogin > div > div {
     position: relative;
+    width: 100%;
 }
 
 .formLogin input[type="text"],
 .formLogin input[type="email"],
-.formLogin input[type="password"] {
+.formLogin input[type="password"],
+.formLogin select,
+.formLogin input[type="date"] {
     background: #fff;
     border-radius: 4px;
     outline: 0;
@@ -43,22 +46,43 @@
     box-sizing: border-box;
 }
 
+.formLogin select,
+.formLogin input[type="date"] {
+    appearance: none;
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 16px;
+}
+
+.formLogin select {
+    background-image: url('../img/arrow-down.svg');
+    padding-right: 40px;
+}
+
 .formLogin input[type="text"]:focus,
 .formLogin input[type="email"]:focus,
-.formLogin input[type="password"]:focus {
+.formLogin input[type="password"]:focus,
+.formLogin select:focus,
+.formLogin input[type="date"]:focus {
     border: 1px solid var(--main-color);
 }
 
-.unCompleted > input {
+.unCompleted > input,
+.unCompleted > select,
+.unCompleted > input[type="date"] {
     border: 1px solid #ff0000 !important;
 }
 
-.completed > input {
+.completed > input,
+.completed > select,
+.completed > input[type="date"] {
     border: 1px solid #42ba96 !important;
     position: relative;
 }
 
-.unCompleted::after {
+.unCompleted::after,
+.unCompleted > select::after,
+.unCompleted > input[type="date"]::after {
     content: "";
     background-image: url(../img/close.svg);
     position: absolute;
@@ -69,7 +93,9 @@
     right: 10px;
 }
 
-.completed::after {
+.completed::after,
+.completed > select::after,
+.completed > input[type="date"]::after {
     content: "";
     background-image: url(../img/check.svg);
     position: absolute;
@@ -101,7 +127,8 @@
     border: 2px solid var(--main-color-hover);
 }
 
-.formLogin > div > div img {
+.formLogin > div > div img,
+.formLogin > div > div img.icon {
     position: absolute;
     max-width: 20px;
     max-height: 20px;
@@ -117,17 +144,14 @@
 }
 
 .formLogin > div span.error {
-    height: 10px;
-    text-align: left;
+    display: block;
     margin-top: 5px;
-    width: fit-content;
     font-size: 0.7rem;
     color: red;
-    line-height: 1px;
+    line-height: 1.2;
     padding: 9px 3px;
     border-radius: 3px;
     background-color: rgba(255, 0, 0, 0.175);
-    display: inline-block;
 }
 
 .formLogin button[type="submit"] {
@@ -157,6 +181,34 @@
     margin: 19px 0;
 }
 
+.modal {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    right: auto;
+    bottom: auto;
+    transform: translate(-50%, -50%);
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    max-width: 500px;
+    width: 90%;
+}
+
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
 @media (max-width: 568px) {
     .formLogin {
         min-width: 300px;
@@ -164,7 +216,9 @@
     }
     .formLogin input[type="text"],
     .formLogin input[type="email"],
-    .formLogin input[type="password"] {
+    .formLogin input[type="password"],
+    .formLogin select,
+    .formLogin input[type="date"] {
         padding: 10px 32px;
     }
 }
