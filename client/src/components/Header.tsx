@@ -119,6 +119,11 @@ const Header: React.FC = () => {
                                     <Link to="/settings">
                                         <i className="fas fa-cog"></i> Settings
                                     </Link>
+                                    {user.role === 'ADMIN' && (
+                                        <Link to="/admin-panel">
+                                            <i className="fas fa-user-shield"></i>Admin Panel
+                                        </Link>
+                                    )}
                                     <div className="dropdown-divider"></div>
                                     <button onClick={logout} className="dropdown-logout-button">
                                         <i className="fas fa-sign-out-alt"></i> Logout

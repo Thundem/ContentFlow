@@ -65,6 +65,7 @@ export interface User {
     avatarUrl: string;
     gender: 'MALE' | 'FEMALE';
     dateOfBirth: string;
+    role: 'USER' | 'ADMIN';
 }
 
 export interface FieldErrorResponse {
