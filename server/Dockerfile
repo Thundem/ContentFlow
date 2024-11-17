@@ -1,25 +1,25 @@
-# Використовуємо Oracle OpenJDK 17
-FROM oraclelinux:8
+# Фаза для бекенду
+FROM openjdk:17-jdk-slim AS backend
 
-# Додаємо репозиторій OpenJDK 17
-RUN dnf install -y oracle-epel-release-el8 \
-    && dnf config-manager --enable ol8_codeready_builder \
-    && dnf install -y java-17-openjdk-devel
+WORKDIR /ContentFlow
 
-# Встановлюємо робочий каталог
-WORKDIR /app
+# Копіюємо лише необхідні файли для бекенду
+COPY /ContentFlow/ /ContentFlow/
 
-# Копіюємо pom.xml та код
-COPY pom.xml .
-COPY src ./src
+# Додаємо права на виконання для mvnw
+RUN chmod +x mvnw
 
-# Встановлюємо Maven (якщо потрібно) і збираємо програму
-RUN curl -fsSL https://downloads.apache.org/maven/maven-3/3.8.8/binaries/apache-maven-3.8.8-bin.tar.gz | tar -xz -C /opt \
-    && ln -s /opt/apache-maven-3.8.8/bin/mvn /usr/bin/mvn \
-    && mvn clean package -DskipTests
+# Будуємо бекенд, пропускаючи тести
+RUN ./mvnw clean install -DskipTests
 
-# Копіюємо зібраний .jar файл
-COPY target/*.jar app.jar
+# Остання фаза - для запуску
+FROM openjdk:17-jdk-slim
 
-# Команда для запуску програми
-CMD ["java", "-jar", "app.jar"]
+# Копіюємо зібраний JAR для бекенду
+COPY --from=backend /ContentFlow/target/*.jar /app.jar
+
+# Відкриваємо порт
+EXPOSE 8080
+
+# Запуск бекенду
+CMD ["java", "-jar", "/app.jar"]
