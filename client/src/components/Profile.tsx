@@ -34,7 +34,7 @@ const Profile: React.FC = () => {
             ) : userData ? (
                 <div className="content">
                     <div className="content-1">
-                        {userData.avatarUrl && (
+                        {userData && (
                             <img
                                 src={
                                 userData.avatarUrl
