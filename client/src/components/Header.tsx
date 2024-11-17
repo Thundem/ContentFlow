@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import './/style/Header.css';
+import './style/Header.css';
 import { useAuth } from '../hooks/useAuth';
 import { Link, useLocation } from 'react-router-dom';
 import '@fortawesome/fontawesome-free/css/all.min.css';
