@@ -1,35 +1,37 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React from 'react';
+import { Routes, Route } from 'react-router-dom';
+import Header from './components/Header';
+import PostList from './components/PostList';
+import Login from './components/Login';
+import SignUp from './components/SignUp';
+import CreatePost from './components/CreatePost';
+import PageNotFound from './components/PageNotFound';
+import PrivateRoute from './components/PrivateRoute';
+import AdminPrivateRoute from './components/AdminPrivateRoute';
+import Profile from './components/Profile';
+import ResendVerification from "./components/ResendVerification";
+import Settings from './components/Settings';
+import AdminPanel from './components/AdminPanel';
+import Verify from './components/Verify';
 
-function App() {
-  const [count, setCount] = useState(0)
+const App: React.FC = () => {
+    return (
+        <div className="App">
+            <Header />
+            <Routes>
+                <Route path="/" element={<PostList />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<SignUp />} />
+                <Route path="/create" element={<PrivateRoute element={<CreatePost />} />} />
+                <Route path="/users/:username" element={<PrivateRoute element={<Profile />} />} />
+                <Route path="/settings" element={<PrivateRoute element={<Settings />} />} />
+                <Route path="/admin-panel" element={<AdminPrivateRoute element={<AdminPanel />} />} />
+                <Route path="/resend-verification" element={<ResendVerification />} />
+                <Route path="/verify" element={<Verify />} />
+                <Route path="*" element={<PageNotFound />} />
+            </Routes>
+        </div>
+    );
+};
 
-  return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
-
-export default App
+export default App;

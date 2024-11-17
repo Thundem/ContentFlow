@@ -1,0 +1,28 @@
+.cont-404{
+    padding-bottom: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.img-404{
+    width: 60%;
+    height: auto;
+}
+
+.but-404{
+    width: 20%;
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: var(--main-color);
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.but-404:hover{
+    background-color: var(--main-color-hover);
+}

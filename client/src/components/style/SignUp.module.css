@@ -1,0 +1,251 @@
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.formLogin {
+    background: #fff;
+    box-shadow: var(--box-shadow);
+    border: 1px solid var(--secondary-color);
+    padding: 25px;
+    border-radius: 11px;
+    min-width: 500px;
+}
+
+.formLogin > h2 {
+    margin-bottom: 28px;
+    color: var(--main-color);
+    text-align: center;
+}
+
+.formLogin > div {
+    margin-bottom: 15px;
+}
+
+.formLogin > div > div {
+    position: relative;
+    width: 100%;
+}
+
+.formLogin input[type="text"],
+.formLogin input[type="email"],
+.formLogin input[type="password"],
+.formLogin select,
+.formLogin input[type="date"] {
+    background: #fff;
+    border-radius: 4px;
+    outline: 0;
+    border: 1px solid var(--secondary-color);
+    box-shadow: var(--box-shadow);
+    padding: 15px 32px;
+    width: 100%;
+    font-family: Arial, Helvetica, sans-serif;
+    transition: all 0.3s ease-in-out;
+    box-sizing: border-box;
+}
+
+.formLogin select {
+    appearance: none;
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 16px;
+    color: #bfbbbb;
+}
+
+.formLogin input[type="text"]:focus,
+.formLogin input[type="email"]:focus,
+.formLogin input[type="password"]:focus,
+.formLogin select:focus,
+.formLogin input[type="date"]:focus {
+    border: 1px solid var(--main-color);
+}
+
+.unCompleted > input,
+.unCompleted > select,
+.unCompleted > input[type="date"] {
+    border: 1px solid #ff0000 !important;
+}
+
+.completed > input,
+.completed > select,
+.completed > input[type="date"] {
+    border: 1px solid #42ba96 !important;
+    position: relative;
+}
+
+.completed .select {
+    color: #000;
+}
+
+.unCompleted::after,
+.unCompleted > select::after,
+.unCompleted > input[type="date"]::after {
+    content: "";
+    background-image: url(../img/close.svg);
+    position: absolute;
+    width: 15px;
+    height: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    right: 10px;
+}
+
+.completed::after,
+.completed > select::after,
+.completed > input[type="date"]::after {
+    content: "";
+    background-image: url(../img/check.svg);
+    position: absolute;
+    width: 15px;
+    height: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    right: 10px;
+}
+
+.formLogin input[type="checkbox"] {
+    position: relative;
+    margin-right: 10px;
+    width: 15px;
+    height: 15px;
+    border: 1px solid var(--main-color);
+    appearance: none;
+    border-radius: 5px;
+    transition: all 0.2s ease-in-out;
+}
+
+.formLogin input[type="checkbox"]:checked {
+    background-color: var(--main-color-hover);
+    background-image: url("../img/tik.svg");
+}
+
+.formLogin input[type="checkbox"]:focus {
+    outline: none;
+    border: 2px solid var(--main-color-hover);
+}
+
+.formLogin > div > div img,
+.formLogin > div > div img.icon {
+    position: absolute;
+    max-width: 20px;
+    max-height: 20px;
+    left: 7px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.formLogin ::placeholder {
+    color: #bfbbbb;
+    font-size: 12px;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.formLogin > div span.error {
+    display: block;
+    margin-top: 5px;
+    font-size: 0.7rem;
+    color: red;
+    line-height: 1.2;
+    padding: 9px 3px;
+    border-radius: 3px;
+    background-color: rgba(255, 0, 0, 0.175);
+}
+
+.formLogin button[type="submit"] {
+    display: block;
+    text-align: center;
+    width: 100%;
+    border-radius: 8px;
+    outline: 0;
+    border: none;
+    color: #fff;
+    padding: 10px;
+    margin: 15px 0;
+    background: var(--main-color);
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+}
+
+.formLogin button[type="submit"]:hover {
+    background: var(--main-color-hover);
+    cursor: pointer;
+}
+
+.terms {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 19px 0;
+}
+
+.modal {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    right: auto;
+    bottom: auto;
+    transform: translate(-50%, -50%);
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    max-width: 500px;
+    width: 90%;
+}
+
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modalButton{
+    background: var(--main-color);
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+}
+
+.spinner {
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #3498db;
+    border-radius: 50%;
+    width: 14px;
+    height: 14px;
+    animation: spin 2s linear infinite;
+    margin-left: 8px;
+}
+
+.loginText{
+    text-align: center;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@media (max-width: 568px) {
+    .formLogin {
+        min-width: 300px;
+        padding: 16px;
+    }
+    .formLogin input[type="text"],
+    .formLogin input[type="email"],
+    .formLogin input[type="password"],
+    .formLogin select,
+    .formLogin input[type="date"] {
+        padding: 10px 32px;
+    }
+}
