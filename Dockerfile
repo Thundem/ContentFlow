@@ -1,14 +1,17 @@
 # Фаза для бекенду
 FROM openjdk:17-jdk-slim AS backend
 
-WORKDIR /app
+# Встановлюємо робочу директорію
+WORKDIR /app/ContentFlow
 
-# Копіюємо та будуємо бекенд
-COPY server/ /app/
-# Додавання прав на виконання для mvnw
-RUN chmod +x /app/mvnw
+# Копіюємо лише необхідні файли для бекенду
+COPY server/ContentFlow/ /app/ContentFlow/
 
-RUN ./server/ContentFlow/mvnw clean install
+# Додаємо права на виконання для mvnw
+RUN chmod +x mvnw
+
+# Будуємо бекенд
+RUN ./mvnw clean install
 
 # Фаза для фронтенду
 FROM node:16 AS frontend
@@ -26,7 +29,7 @@ FROM nginx:alpine
 COPY --from=frontend /app/build /usr/share/nginx/html
 
 # Копіюємо зібраний JAR для бекенду
-COPY --from=backend /app/target/app.jar /app.jar
+COPY --from=backend /app/ContentFlow/target/app.jar /app.jar
 
 # Відкриваємо порти
 EXPOSE 8080 80
