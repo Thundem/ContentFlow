@@ -1,41 +1,25 @@
-version: '3.8'
+# Використовуємо Oracle OpenJDK 17
+FROM oraclelinux:8
 
-services:
-  db:
-    image: postgres:13
-    container_name: postgres_db
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 123
-      POSTGRES_DB: contentflow
-    volumes:
-      - db_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
+# Додаємо репозиторій OpenJDK 17
+RUN dnf install -y oracle-epel-release-el8 \
+    && dnf config-manager --enable ol8_codeready_builder \
+    && dnf install -y java-17-openjdk-devel
 
-  backend:
-    build:
-      context: ./server
-      dockerfile: Dockerfile
-    container_name: backend
-    depends_on:
-      - db
-    ports:
-      - "8080:8080"
-    environment:
-      DATABASE_URL: jdbc:postgresql://db:5432/contentflow
-      DATABASE_USERNAME: postgres
-      DATABASE_PASSWORD: 123
+# Встановлюємо робочий каталог
+WORKDIR /app
 
-  frontend:
-    build:
-      context: ./client
-      dockerfile: Dockerfile
-    container_name: frontend
-    ports:
-      - "3000:80"
-    depends_on:
-      - backend
+# Копіюємо pom.xml та код
+COPY pom.xml .
+COPY src ./src
 
-volumes:
-  db_data:
+# Встановлюємо Maven (якщо потрібно) і збираємо програму
+RUN curl -fsSL https://downloads.apache.org/maven/maven-3/3.8.8/binaries/apache-maven-3.8.8-bin.tar.gz | tar -xz -C /opt \
+    && ln -s /opt/apache-maven-3.8.8/bin/mvn /usr/bin/mvn \
+    && mvn clean package -DskipTests
+
+# Копіюємо зібраний .jar файл
+COPY target/*.jar app.jar
+
+# Команда для запуску програми
+CMD ["java", "-jar", "app.jar"]
