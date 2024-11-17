@@ -1,8 +1,9 @@
 // src/api/axiosInstance.ts
 import axios from "axios";
+import getBaseURL from "./getBaseURL";
 
 const axiosInstance = axios.create({
-  baseURL: "http://localhost:8080",
+  baseURL: getBaseURL(),
 });
 
 axiosInstance.interceptors.request.use(
@@ -18,13 +19,10 @@ axiosInstance.interceptors.request.use(
   }
 );
 
-// Інтерцептор відповідей
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
-      // Якщо токен недійсний або прострочений, виходимо користувача
-      // Оскільки не можна використовувати хуки тут, ви можете використовувати інші методи, наприклад, події або глобальний стан
       localStorage.removeItem("token");
       window.location.href = "/login";
     }
