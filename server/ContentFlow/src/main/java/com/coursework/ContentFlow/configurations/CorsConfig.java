@@ -15,16 +15,18 @@ public class CorsConfig {
     public CorsFilter corsFilter() {
         CorsConfiguration config = new CorsConfiguration();
 
-        config.setAllowedOrigins(Arrays.asList(
+        config.setAllowedOriginPatterns(Arrays.asList(
                 "http://localhost:5173", // Розробка
                 "https://contentflow.onrender.com" // Продакшн
         ));
 
         config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-
         config.setAllowedHeaders(Arrays.asList("*"));
-
         config.setAllowCredentials(true);
+
+        // Додайте дозволені заголовки для CORS
+        config.addExposedHeader("Authorization");
+        config.addExposedHeader("Content-Type");
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
