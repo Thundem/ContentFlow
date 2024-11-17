@@ -1,7 +1,6 @@
 # Фаза для бекенду
 FROM openjdk:17-jdk-slim AS backend
 
-# Встановлюємо робочу директорію
 WORKDIR /app/ContentFlow
 
 # Копіюємо лише необхідні файли для бекенду
@@ -10,8 +9,8 @@ COPY server/ContentFlow/ /app/ContentFlow/
 # Додаємо права на виконання для mvnw
 RUN chmod +x mvnw
 
-# Будуємо бекенд
-RUN ./mvnw clean install
+# Будуємо бекенд, пропускаючи тести
+RUN ./mvnw clean install -DskipTests
 
 # Фаза для фронтенду
 FROM node:16 AS frontend
