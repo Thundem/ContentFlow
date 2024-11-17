@@ -84,7 +84,7 @@ ContentFlow/
 │       │   ├── mvnw.cmd              # Скрипт для Windows для запуску Maven
 │       │   └── pom.xml               # Основний файл конфігурації для Maven
 │       │
-│       ├── Dockerfile            # Налаштування Docker для серверної частини
+│       └── Dockerfile            # Налаштування Docker для серверної частини
 │       
 └── docker-compose.yml            # Файл для налаштування Docker Compose, розташований в корені проєкту
 ```
