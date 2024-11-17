@@ -21,14 +21,17 @@ WORKDIR /app
 COPY client/ /app/
 RUN npm install && npm run build
 
-# Остання фаза - для запуску з Nginx
+# Фаза для Nginx
 FROM nginx:alpine
 
-# Копіюємо фронтенд
+# Копіюємо зібраний фронтенд
 COPY --from=frontend /app/dist /usr/share/nginx/html
 
 # Копіюємо зібраний JAR для бекенду
 COPY --from=backend /app/ContentFlow/target/*.jar /app.jar
+
+# Копіюємо власну конфігурацію Nginx
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Відкриваємо порти
 EXPOSE 8080 80
