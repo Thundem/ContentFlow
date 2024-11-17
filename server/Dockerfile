@@ -5,9 +5,9 @@ services:
     image: postgres:13
     container_name: postgres_db
     environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: mydatabase
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123
+      POSTGRES_DB: contentflow
     volumes:
       - db_data:/var/lib/postgresql/data
     ports:
@@ -23,9 +23,9 @@ services:
     ports:
       - "8080:8080"
     environment:
-      DATABASE_URL: jdbc:postgresql://db:5432/mydatabase
-      DATABASE_USERNAME: user
-      DATABASE_PASSWORD: password
+      DATABASE_URL: jdbc:postgresql://db:5432/contentflow
+      DATABASE_USERNAME: postgres
+      DATABASE_PASSWORD: 123
 
   frontend:
     build:
