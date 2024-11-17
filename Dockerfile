@@ -8,7 +8,7 @@ COPY server/ /app/
 # Додавання прав на виконання для mvnw
 RUN chmod +x /app/mvnw
 
-RUN ./app/ContentFlow/mvnw clean install
+RUN ./server/ContentFlow/mvnw clean install
 
 # Фаза для фронтенду
 FROM node:16 AS frontend
