@@ -35,6 +35,9 @@ COPY --from=backend /app/ContentFlow/target/*.jar /app.jar
 # Копіюємо supervisord конфігурацію
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
+# Додаємо команду для перевірки Java
+RUN java -version
+
 # Відкриваємо порти
 EXPOSE 80 8080
 
