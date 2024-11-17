@@ -2,9 +2,11 @@ package com.coursework.ContentFlow.controllers;
 
 import com.coursework.ContentFlow.models.User;
 import com.coursework.ContentFlow.models.enums.Gender;
+import com.coursework.ContentFlow.models.enums.Role;
 import com.coursework.ContentFlow.services.CloudinaryService;
 import com.coursework.ContentFlow.services.UserService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -36,7 +38,8 @@ public class UserController {
         return ResponseEntity.ok(user);
     }
 
-    @GetMapping
+    @Secured("ROLE_ADMIN")
+    @GetMapping("/all")
     public ResponseEntity<List<User>> getAllUsers() {
         List<User> users = userService.getAllUsers();
         return ResponseEntity.ok(users);
@@ -69,6 +72,49 @@ public class UserController {
         if (dateOfBirth != null && !dateOfBirth.isEmpty()) user.setDateOfBirth(LocalDate.parse(dateOfBirth));
         if (gender != null) user.setGender(gender);
 
+        if (avatar != null && !avatar.isEmpty()) {
+            if (user.getAvatarPublicId() != null && !user.getAvatarPublicId().isEmpty()) {
+                cloudinaryService.deleteAvatar(user.getAvatarPublicId());
+            }
+
+            Map<String, Object> uploadResult = cloudinaryService.uploadAvatar(avatar);
+            String avatarUrl = (String) uploadResult.get("secure_url");
+            String publicId = (String) uploadResult.get("public_id");
+
+            user.setAvatarUrl(avatarUrl);
+            user.setAvatarPublicId(publicId);
+        }
+
+        User updatedUser = userService.updateUser(user);
+        return ResponseEntity.ok(updatedUser);
+    }
+
+    @Secured("ROLE_ADMIN")
+    @PatchMapping(value = "/update/{id}", consumes = { "multipart/form-data" })
+    public ResponseEntity<User> updateUser(@PathVariable Long id,
+                                           @RequestParam(required = false) String username,
+                                           @RequestParam(required = false) String email,
+                                           @RequestParam(required = false) String name,
+                                           @RequestParam(required = false) String surname,
+                                           @RequestParam(required = false) Gender gender,
+                                           @RequestParam(required = false) Role role,
+                                           @RequestParam(required = false) String dateOfBirth,
+                                           @RequestParam(required = false) MultipartFile avatar) {
+        User user = userService.getUserById(id);
+        if (user == null) {
+            return ResponseEntity.status(404).body(null);
+        }
+
+        // Оновлення тільки тих полів, які були передані
+        if (username != null) user.setUsername(username);
+        if (email != null) user.setEmail(email);
+        if (name != null) user.setName(name);
+        if (surname != null) user.setSurname(surname);
+        if (gender != null) user.setGender(gender);
+        if (role != null) user.setRole(role);
+        if (dateOfBirth != null) user.setDateOfBirth(LocalDate.parse(dateOfBirth));
+
+        // Якщо є нове фото, обробляємо його
         if (avatar != null && !avatar.isEmpty()) {
             if (user.getAvatarPublicId() != null && !user.getAvatarPublicId().isEmpty()) {
                 cloudinaryService.deleteAvatar(user.getAvatarPublicId());
