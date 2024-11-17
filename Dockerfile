@@ -14,14 +14,37 @@ FROM node:16 AS frontend
 
 WORKDIR /app
 
-COPY client/ /app/
-RUN npm install && npm run build
+# Копіюємо тільки файли package.json та package-lock.json для кращого кешування
+COPY client/package*.json ./
+
+# Очищення попередніх залежностей, якщо такі існують
+RUN rm -rf node_modules
+
+# Очищення кешу npm перед встановленням
+RUN npm cache clean --force
+
+# Встановлення залежностей
+RUN npm install
+
+# Копіюємо решту файлів фронтенду
+COPY client/ ./
+
+# Побудова фронтенду
+RUN npm run build
+
+# Очищення node_modules та кешу після побудови для зменшення розміру образу
+RUN rm -rf node_modules && npm cache clean --force
 
 # Фінальний образ, базований на openjdk:17-jdk-slim
 FROM openjdk:17-jdk-slim
 
+# Встановлення змінної середовища для безінтерактивної установки
+ENV DEBIAN_FRONTEND=noninteractive
+
 # Встановлення Nginx
-RUN apt-get update && apt-get install -y nginx && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && \
+    apt-get install -y nginx && \
+    rm -rf /var/lib/apt/lists/*
 
 # Копіюємо зібраний фронтенд
 COPY --from=frontend /app/dist /usr/share/nginx/html
