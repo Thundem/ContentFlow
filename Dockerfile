@@ -5,7 +5,7 @@ WORKDIR /app
 
 # Копіюємо та будуємо бекенд
 COPY server/ /app/
-RUN ./mvnw clean install
+RUN ./server/ContentFlow/mvnw clean install
 
 # Фаза для фронтенду
 FROM node:16 AS frontend
