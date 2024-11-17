@@ -25,10 +25,10 @@ RUN npm install && npm run build
 FROM nginx:alpine
 
 # Копіюємо фронтенд
-COPY --from=frontend /app/build /usr/share/nginx/html
+COPY --from=frontend /app/dist /usr/share/nginx/html
 
 # Копіюємо зібраний JAR для бекенду
-COPY --from=backend /app/ContentFlow/target/app.jar /app.jar
+COPY --from=backend /app/ContentFlow/target/*.jar /app.jar
 
 # Відкриваємо порти
 EXPOSE 8080 80
