@@ -77,6 +77,10 @@ const Header: React.FC = () => {
         });
     };
 
+    const handleDismissClick = () => {
+        setShowInstallButton(false);
+    };
+
     return (
         <header className="header">
             <h1 className="header-title">ContentFlow</h1>
@@ -141,9 +145,11 @@ const Header: React.FC = () => {
                 </div>
             </nav>
             {showInstallButton && (
-                <button onClick={handleInstallClick} className="install-button">
-                Install App
-                </button>
+                <div className={`install-banner ${showInstallButton ? 'show' : ''}`}>
+                    <span>Install our app for a better experience!</span>
+                    <button onClick={handleInstallClick}>Install</button>
+                    <button onClick={handleDismissClick}>Dismiss</button>
+                </div>
             )}
         </header>
     );
