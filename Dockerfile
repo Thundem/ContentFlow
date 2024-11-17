@@ -3,13 +3,10 @@ FROM openjdk:17-jdk-slim AS backend
 
 WORKDIR /app/ContentFlow
 
-# Копіюємо лише необхідні файли для бекенду
 COPY server/ContentFlow/ /app/ContentFlow/
 
-# Додаємо права на виконання для mvnw
 RUN chmod +x mvnw
 
-# Будуємо бекенд, пропускаючи тести
 RUN ./mvnw clean install -DskipTests
 
 # Фаза для фронтенду
@@ -17,24 +14,29 @@ FROM node:16 AS frontend
 
 WORKDIR /app
 
-# Копіюємо файли клієнта та будуємо
 COPY client/ /app/
 RUN npm install && npm run build
 
-# Фаза для Nginx
-FROM nginx:alpine
+# Фінальний образ, базований на openjdk:17-jdk-slim
+FROM openjdk:17-jdk-slim
+
+# Встановлення Nginx та Supervisord
+RUN apt-get update && apt-get install -y nginx supervisor && rm -rf /var/lib/apt/lists/*
 
 # Копіюємо зібраний фронтенд
 COPY --from=frontend /app/dist /usr/share/nginx/html
 
+# Копіюємо nginx конфігурацію
+COPY nginx.conf /etc/nginx/sites-available/default
+
 # Копіюємо зібраний JAR для бекенду
 COPY --from=backend /app/ContentFlow/target/*.jar /app.jar
 
-# Копіюємо власну конфігурацію Nginx
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Копіюємо supervisord конфігурацію
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 # Відкриваємо порти
-EXPOSE 8080 80
+EXPOSE 80 8080
 
-# Запуск обох частин (бекенд та фронтенд)
-CMD ["sh", "-c", "java -jar /app.jar & nginx -g 'daemon off;'"]
+# Запуск supervisord
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
