@@ -5,7 +5,10 @@ WORKDIR /app
 
 # Копіюємо та будуємо бекенд
 COPY server/ /app/
-RUN ./server/ContentFlow/mvnw clean install
+# Додавання прав на виконання для mvnw
+RUN chmod +x /app/mvnw
+
+RUN ./app/ContentFlow/mvnw clean install
 
 # Фаза для фронтенду
 FROM node:16 AS frontend
