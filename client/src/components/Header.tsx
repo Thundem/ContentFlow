@@ -35,15 +35,15 @@ const Header: React.FC = () => {
 
     useEffect(() => {
         const handler = (e: BeforeInstallPromptEvent) => {
-          e.preventDefault();
-          setDeferredPrompt(e);
-          setShowInstallButton(true);
+            e.preventDefault();
+            setDeferredPrompt(e);
+            setShowInstallButton(true);
         };
 
         window.addEventListener('beforeinstallprompt', handler);
 
         return () => {
-          window.removeEventListener('beforeinstallprompt', handler);
+            window.removeEventListener('beforeinstallprompt', handler);
         };
     }, []);
 
@@ -67,13 +67,13 @@ const Header: React.FC = () => {
         if (!deferredPrompt) return;
         deferredPrompt.prompt();
         deferredPrompt.userChoice.then((choiceResult) => {
-          if (choiceResult.outcome === 'accepted') {
-            console.log('User accepted the A2HS prompt');
-          } else {
-            console.log('User dismissed the A2HS prompt');
-          }
-          setDeferredPrompt(null);
-          setShowInstallButton(false);
+            if (choiceResult.outcome === 'accepted') {
+                console.log('User accepted the A2HS prompt');
+            } else {
+                console.log('User dismissed the A2HS prompt');
+            }
+            setDeferredPrompt(null);
+            setShowInstallButton(false);
         });
     };
 
@@ -106,10 +106,10 @@ const Header: React.FC = () => {
                             <img
                                 src={
                                     user.avatarUrl
-                                    ? user.avatarUrl
-                                    : user.gender === 'MALE'
-                                    ? manAvatar
-                                    : womanAvatar
+                                        ? user.avatarUrl
+                                        : user.gender === 'MALE'
+                                        ? manAvatar
+                                        : womanAvatar
                                 }
                                 alt="User Avatar"
                                 className="header-avatar"
@@ -145,11 +145,16 @@ const Header: React.FC = () => {
                 </div>
             </nav>
             {showInstallButton && (
-                <div className={`install-banner ${showInstallButton ? 'show' : ''}`}>
-                    <span>Install our app for a better experience!</span>
-                    <button onClick={handleInstallClick}>Install</button>
-                    <button onClick={handleDismissClick}>Dismiss</button>
-                </div>
+                <>
+                    <div className="overlay show" onClick={handleDismissClick}></div>
+                    <div className={`install-banner show`}>
+                        <span>Install our app for a better experience!</span>
+                        <div>
+                            <button onClick={handleInstallClick}>Install</button>
+                            <button onClick={handleDismissClick}>Dismiss</button>
+                        </div>
+                    </div>
+                </>
             )}
         </header>
     );

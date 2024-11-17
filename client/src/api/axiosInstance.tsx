@@ -1,4 +1,3 @@
-// src/api/axiosInstance.ts
 import axios from "axios";
 import getBaseURL from "./getBaseURL";
 
