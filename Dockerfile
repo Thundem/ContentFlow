@@ -25,7 +25,7 @@ RUN npm install && npm run build
 FROM nginx:alpine
 
 # Копіюємо фронтенд
-COPY --from=frontend /app/build /usr/share/nginx/html
+COPY --from=frontend /app/dist /usr/share/nginx/html
 
 # Копіюємо зібраний JAR для бекенду
 COPY --from=backend /app/ContentFlow/target/*.jar /app.jar
