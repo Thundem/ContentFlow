@@ -24,7 +24,6 @@ public class CorsConfig {
         config.setAllowedHeaders(Arrays.asList("*"));
         config.setAllowCredentials(true);
 
-        // Додайте дозволені заголовки для CORS
         config.addExposedHeader("Authorization");
         config.addExposedHeader("Content-Type");
 
