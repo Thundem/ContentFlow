@@ -1,31 +1,17 @@
 version: '3.8'
 
 services:
-  db:
-    image: postgres:13
-    container_name: postgres_db
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 123
-      POSTGRES_DB: contentflow
-    volumes:
-      - db_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
-
   backend:
     build:
       context: ./server
       dockerfile: Dockerfile
     container_name: backend
-    depends_on:
-      - db
     ports:
       - "8080:8080"
     environment:
-      DATABASE_URL: jdbc:postgresql://db:5432/contentflow
-      DATABASE_USERNAME: postgres
-      DATABASE_PASSWORD: 123
+      DATABASE_URL: jdbc:postgresql://dpg-cst3ied6l47c73ehtf4g-a.oregon-postgres.render.com:5432/contentflow
+      DATABASE_USERNAME: ${POSTGRES_USER}
+      DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
 
   frontend:
     build:
@@ -35,9 +21,6 @@ services:
     depends_on:
       - backend
     ports:
-      - "5173:5173"
+      - "80:80"
     environment:
       VITE_BASE_URL: http://localhost:8080
-
-volumes:
-  db_data:

@@ -1,20 +1,31 @@
-# Фаза для фронтенду
-FROM node:16 AS frontend
+# Базовий образ для Node.js
+FROM node:16 AS build
 
 WORKDIR /app
 
-# Копіюємо файли клієнта та будуємо
-COPY . /app/
-RUN npm install && npm run build
+# Копіюємо лише package.json та package-lock.json для кешування залежностей
+COPY package*.json ./
 
-# Остання фаза - для запуску з Nginx
-FROM nginx:alpine
+# Встановлюємо залежності
+RUN npm install
 
-# Копіюємо фронтенд
-COPY --from=frontend /app/dist /usr/share/nginx/html
+# Копіюємо інші файли проєкту
+COPY . ./
 
-# Відкриваємо порт
+# Будуємо проєкт
+RUN npm run build
+
+# Фінальний образ для Nginx
+FROM nginx:stable-alpine
+
+# Копіюємо зібрані файли у стандартну папку Nginx
+COPY --from=build /app/dist /usr/share/nginx/html
+
+# Копіюємо конфігураційний файл Nginx з кореневої папки
+COPY ../nginx.conf /etc/nginx/conf.d/default.conf
+
+# Відкриваємо порт для фронтенду
 EXPOSE 80
 
-# Запуск фронтенду
+# Запуск Nginx
 CMD ["nginx", "-g", "daemon off;"]
