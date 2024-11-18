@@ -10,7 +10,7 @@ const PostList: React.FC = () => {
     useEffect(() => {
         const fetchPosts = async () => {
             try {
-                const response = await axiosInstance.get("/api/posts");
+                const response = await axiosInstance.get("/api/public/posts");
                 if (Array.isArray(response.data)) {
                     setPosts(response.data);
                 } else {
