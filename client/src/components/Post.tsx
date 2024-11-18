@@ -5,33 +5,29 @@ import { AuthContext } from '../context/AuthContext';
 import { PostProps, Comment } from './types';
 import { FaHeart, FaRegHeart } from "react-icons/fa";
 import { AxiosError } from 'axios';
-import { toast } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
 
 const Post: React.FC<PostProps> = ({ id, mediaUrl, content, likes, comments, userId }) => {
     const [newComment, setNewComment] = useState('');
-    const [username, setUsername] = useState<string>('');
+    const [username, setUsername] = useState<string>('Автор невідомий');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isLiked, setIsLiked] = useState(false);
     const [likesCount, setLikesCount] = useState<number>(likes);
     const [commentsState, setComments] = useState<Comment[]>(comments);
+    const [isImageModalOpen, setIsImageModalOpen] = useState(false);
 
     const { user } = useContext(AuthContext)!;
     const currentUserId = user?.id;
 
-    const handleUsername = async (userId: number) => {
-        try {
-            const response = await axiosInstance.get(`/api/users/username/${userId}`);
-            return response.data;
-        } catch (error) {
-            console.error('Error fetching username:', error);
-        }
-    };
-
     useEffect(() => {
         const fetchUsername = async () => {
             if (userId) {
-                const fetchedUsername = await handleUsername(userId);
-                setUsername(fetchedUsername || 'Автор невідомий');
+                try {
+                    const response = await axiosInstance.get(`/api/users/username/${userId}`);
+                    setUsername(response.data || 'Автор невідомий');
+                } catch (error) {
+                    console.error('Error fetching username:', error);
+                }
             }
         };
         fetchUsername();
@@ -51,64 +47,43 @@ const Post: React.FC<PostProps> = ({ id, mediaUrl, content, likes, comments, use
             }
         };
         checkIfLiked();
-    }, [currentUserId, id]);    
+    }, [currentUserId, id]);
 
     const handleLike = async () => {
-        console.log('handleLike called');
-        console.log('Axios request config:', {
-            url: `/api/posts/${id}/like`,
-            method: 'post',
-            headers: axiosInstance.defaults.headers,
-        });
-        
-        console.log('user:', user);
         if (!currentUserId) {
-            toast.error("You must be logged in to like a post.");
+            toast.error("Ви повинні увійти, щоб ставити лайки.");
             return;
         }
 
-    
         try {
-            console.log('Before axios request');
             if (isLiked) {
-                console.log('Sending unlike request');
                 await axiosInstance.post(`/api/posts/${id}/unlike`);
-                console.log('Unlike request completed');
                 setIsLiked(false);
                 setLikesCount(likesCount - 1);
-                toast.info('Post unliked!');
+                toast.info('Лайк видалено!');
             } else {
-                console.log('Sending like request');
                 await axiosInstance.post(`/api/posts/${id}/like`);
-                console.log('Like request completed');
                 setIsLiked(true);
                 setLikesCount(likesCount + 1);
-                toast.success('Post liked!');
+                toast.success('Пост вподобано!');
             }
-            console.log('After axios request');
         } catch (error) {
             console.error("Error toggling like:", error);
             const axiosError = error as AxiosError;
-            const errorMessage =
-                typeof axiosError.response?.data === "string"
-                    ? axiosError.response.data
-                    : "Something went wrong!";
+            const errorMessage = typeof axiosError.response?.data === "string" ? axiosError.response.data : "Щось пішло не так!";
             toast.error(errorMessage);
         }
-    };    
+    };
 
     const handleCommentSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        console.log('handleCommentSubmit called');
         if (!currentUserId) {
-            toast.error("You must be logged in to comment.");
+            toast.error("Ви повинні увійти, щоб залишати коментарі.");
             return;
         }
-        try {
-            console.log('Before axios request');
-            const response = await axiosInstance.post<Comment>(`/api/posts/${id}/comments`, { text: newComment });
-            console.log('Axios request completed', response);
 
+        try {
+            const response = await axiosInstance.post<Comment>(`/api/posts/${id}/comments`, { text: newComment });
             const newCommentData: Comment = {
                 ...response.data,
                 userId: currentUserId,
@@ -116,33 +91,39 @@ const Post: React.FC<PostProps> = ({ id, mediaUrl, content, likes, comments, use
 
             setComments([...commentsState, newCommentData]);
             setNewComment('');
-            toast.success('Comment added!');
+            toast.success('Коментар додано!');
         } catch (error) {
             console.error("Error adding comment:", error);
             const axiosError = error as AxiosError;
-            const errorMessage =
-                typeof axiosError.response?.data === "string"
-                    ? axiosError.response.data
-                    : "Something went wrong!";
+            const errorMessage = typeof axiosError.response?.data === "string" ? axiosError.response.data : "Щось пішло не так!";
             toast.error(errorMessage);
         }
-    };    
+    };
 
     const handleDeleteComment = async (commentId: number) => {
         try {
             await axiosInstance.delete(`/api/posts/${id}/comments/${commentId}`);
             setComments(prevComments => prevComments.filter(comment => comment.id !== commentId));
-            toast.success('Comment deleted!');
+            toast.success('Коментар видалено!');
         } catch (error) {
             const axiosError = error as AxiosError;
             console.error("Error deleting comment:", axiosError);
 
-            const errorMessage =
-                typeof axiosError.response?.data === "string"
-                    ? axiosError.response.data
-                    : "Something went wrong!";
+            const errorMessage = typeof axiosError.response?.data === "string" ? axiosError.response.data : "Щось пішло не так!";
             toast.error(errorMessage);
         }
+    };
+
+    useEffect(() => {
+        console.log('Current User ID:', currentUserId);
+    }, [currentUserId]);
+
+    const openImageModal = () => {
+        setIsImageModalOpen(true);
+    };
+
+    const closeImageModal = () => {
+        setIsImageModalOpen(false);
     };
 
     return (
@@ -151,24 +132,36 @@ const Post: React.FC<PostProps> = ({ id, mediaUrl, content, likes, comments, use
                 <span className="username">{username}</span>
             </div>
             {mediaUrl && (
-                <div className="post-media">
+                <div className="post-media" onClick={openImageModal}>
                     {mediaUrl.endsWith('.mp4') ? (
                         <video controls>
                             <source src={mediaUrl} type="video/mp4" />
-                            Your browser does not support the video tag.
+                            Ваш браузер не підтримує відео.
                         </video>
                     ) : (
-                        <img src={mediaUrl} alt="Post media" />
+                        <img src={mediaUrl} alt="Медіа Поста" />
                     )}
                 </div>
             )}
+
+            {isImageModalOpen && (
+                <div className="image-modal" onClick={closeImageModal}>
+                    <div className="image-modal-content">
+                        <img src={mediaUrl} alt="Повнорозмірне зображення" className="modal-image" />
+                    </div>
+                </div>
+            )}
+
             <p className="post-content">{content}</p>
             <div className="post-footer">
                 <button className="comments-button" onClick={() => setIsModalOpen(true)}>
-                    Comments ({commentsState.length})
+                    Коментарі ({commentsState.length})
                 </button>
                 <div className="like-container">
-                    <button onClick={handleLike} style={{ background: 'none', border: 'none' }}>
+                    <button
+                        onClick={handleLike}
+                        style={{ background: 'none', border: 'none' }}
+                    >
                         {isLiked ? (
                             <FaHeart style={{ color: 'red', width: '24px', height: '24px' }} />
                         ) : (
@@ -183,30 +176,35 @@ const Post: React.FC<PostProps> = ({ id, mediaUrl, content, likes, comments, use
                 <div className="modal">
                     <div className="modal-content">
                         <span className="close" onClick={() => setIsModalOpen(false)}>&times;</span>
-                        <h3>Comments:</h3>
+                        <h3>Коментарі:</h3>
                         <ul>
                             {commentsState.map(comment => (
                                 <li key={comment.id}>
                                     <span className="comment-text">{comment.text}</span>
                                     {comment.userId === currentUserId && (
-                                        <button className="delete-button" onClick={() => handleDeleteComment(comment.id)}>Delete</button>
+                                        <button className="delete-button" onClick={() => handleDeleteComment(comment.id)}>Видалити</button>
                                     )}
                                 </li>
                             ))}
                         </ul>
-                        <form onSubmit={handleCommentSubmit} className="comment-form">
-                            <input
-                                type="text"
-                                value={newComment}
-                                onChange={(e) => setNewComment(e.target.value)}
-                                placeholder="Add a comment"
-                                required
-                            />
-                            <button type="submit">Submit</button>
-                        </form>
+                        {currentUserId ? (
+                            <form onSubmit={handleCommentSubmit} className="comment-form">
+                                <input
+                                    type="text"
+                                    value={newComment}
+                                    onChange={(e) => setNewComment(e.target.value)}
+                                    placeholder="Додати коментар"
+                                    required
+                                />
+                                <button type="submit">Надіслати</button>
+                            </form>
+                        ) : (
+                            <p>Увійдіть, щоб залишати коментарі.</p>
+                        )}
                     </div>
                 </div>
             )}
+            <ToastContainer />
         </div>
     );
 };

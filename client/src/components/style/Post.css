@@ -53,6 +53,10 @@
     object-position: center center;
 }
 
+.post-media video {
+    object-fit: contain;
+}
+
 .post-footer {
     display: flex;
     justify-content: space-between;
@@ -194,6 +198,39 @@
 
 .comment-form button[type="submit"]:hover {
     background-color: var(--main-color-hover);
+}
+
+.image-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.image-modal-content {
+    display: contents;
+    position: relative;
+}
+
+.modal-image {
+    max-width: 90%;
+    max-height: 80vh;
+    object-fit: contain;
+}
+
+.image-modal-content .close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 30px;
+    color: white;
+    cursor: pointer;
 }
 
 @media (max-width: 531px) {
