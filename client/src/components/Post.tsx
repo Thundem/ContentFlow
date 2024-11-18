@@ -2,7 +2,7 @@ import React, { useEffect, useState, useContext } from 'react';
 import axiosInstance from '../api/axiosInstance';
 import './style/Post.css';
 import { AuthContext } from '../context/AuthContext';
-import { PostProps, Comment } from './types';
+import { PostProps, Comment } from './types/types';
 import { FaHeart, FaRegHeart } from "react-icons/fa";
 import { AxiosError } from 'axios';
 import { toast, ToastContainer } from 'react-toastify';

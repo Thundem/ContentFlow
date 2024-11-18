@@ -8,7 +8,7 @@ import "react-toastify/dist/ReactToastify.css";
 import axios from 'axios';
 import { notify } from "./toast";
 import { Link, useNavigate } from "react-router-dom";
-import { LoginData } from "./types";
+import { LoginData } from "./types/types";
 import axiosInstance from "../api/axiosInstance";
 
 const Login: React.FC = () => {

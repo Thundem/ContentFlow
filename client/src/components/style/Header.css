@@ -168,9 +168,9 @@
     top: 70px;
     left: 50%;
     transform: translateX(-50%);
-    background-color: var(--main-color);
-    color: #fff;
-    padding: 10px 20px;
+    background-color: #fff;
+    color: #888787;
+    padding: 10px;
     border-radius: 5px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
     transition: top 0.3s ease, opacity 0.3s ease;
@@ -186,6 +186,8 @@
 .install-banner.show {
     top: 80px;
     opacity: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 .overlay {
@@ -206,6 +208,14 @@
     visibility: visible;
 }
 
+.install-buttons-container{
+    width: 80%;
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+    box-sizing: border-box;
+}
+
 .install-banner button {
     background: none;
     border: none;
@@ -213,6 +223,29 @@
     font-size: 1rem;
     cursor: pointer;
     margin-left: 10px;
+    box-sizing: border-box;
+}
+
+.install-banner button:first-child {
+    width: 100%;
+    background-color: var(--main-color);
+    color: #fff;
+    border-radius: 5px;
+}
+
+.install-banner button:first-child:hover {
+    background-color: var(--main-color-hover);
+}
+
+.install-banner button:last-child {
+    width: 100%;
+    background-color: #fb8a8a;
+    color: #fff;
+    border-radius: 5px;
+}
+
+.install-banner button:last-child:hover {
+    background-color: #f97070;
 }
 
 @media (max-width: 531px) {

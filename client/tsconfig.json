@@ -3,6 +3,7 @@
     "target": "esnext",
     "useDefineForClassFields": true,
     "lib": ["dom", "dom.iterable", "esnext"],
+    "typeRoots": ["./src/types", "./node_modules/@types"],
     "allowJs": false,
     "skipLibCheck": true,
     "esModuleInterop": false,

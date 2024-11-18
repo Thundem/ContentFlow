@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axiosInstance from "../api/axiosInstance";
 import Post from "./Post";
-import { PostData } from "./types";
+import { PostData } from "./types/types";
 import "./style/PostList.css";
 
 const PostList: React.FC = () => {

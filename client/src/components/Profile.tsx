@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axiosInstance from "../api/axiosInstance";
 import { useParams } from "react-router-dom";
-import { User } from "./types";
+import { User } from "./types/types";
 import "./style/Profile.css";
 import manAvatar from './img/manAvatar.png';
 import womanAvatar from './img/womanAvatar.png';

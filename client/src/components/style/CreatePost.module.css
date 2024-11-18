@@ -84,7 +84,7 @@ h2 {
 
 .submitButton:hover {
     background-color: var(--main-color-hover);
-    }
+}
 
 @media (max-width: 568px) {
     .form {

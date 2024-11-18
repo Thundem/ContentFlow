@@ -5,7 +5,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import styles from './style/Settings.module.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit, faSave, faTimes } from '@fortawesome/free-solid-svg-icons';
-import { EditableField, User } from './types';
+import { EditableField, User } from './types/types';
 import { useDropzone, Accept } from 'react-dropzone';
 import axios from 'axios';
 import manAvatar from './img/manAvatar.png';
