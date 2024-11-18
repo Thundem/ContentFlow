@@ -20,19 +20,11 @@ body {
   --box-shadow: 0 0 7px 0 var(--secondary-color);
   --main-color-hover: #52b1ae;
 
-  color-scheme: light;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  color: #213547;
+  background-color: #eefbfb;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
 }
