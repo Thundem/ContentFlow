@@ -83,6 +83,7 @@ ContentFlow/
 │       ├── .gitignore               # Файл для ігнорування зайвих файлів у Git
 │       ├── mvnw                     # Скрипт для запуску Maven
 │       ├── mvnw.cmd                 # Windows-версія скрипта для Maven
+|       ├── Dockerfile               # Налаштування для Docker образу серверної частини
 │       └── pom.xml                  # Основний файл конфігурацій Maven
 │
 ├── docker-compose.yml               # Файл для керування контейнерами за допомогою Docker Compose
