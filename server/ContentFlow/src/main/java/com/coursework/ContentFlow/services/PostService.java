@@ -60,7 +60,11 @@ public class PostService {
 
     public Long getUserIdByPostId(Long postId) {
         Post post = getPostById(postId);
-        return post.getUser() != null ? post.getUser().getId() : null; // Повертаємо id користувача або null
+        return post.getUser() != null ? post.getUser().getId() : null;
+    }
+
+    public List<Post> getPostsByUserId(Long userId) {
+        return postRepository.findByUserId(userId);
     }
 
     public void unlikePost(Long postId, Long userId) {

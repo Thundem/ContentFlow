@@ -40,27 +40,27 @@ public class PostController {
         this.cloudinaryService = cloudinaryService;
     }
 
-    @GetMapping
-    public List<PostDTO> getAllPosts() {
-        logger.info("Getting all posts");
-        List<Post> posts = postService.getAllPosts();
-        logger.info("Retrieved {} posts", posts.size());
+    @GetMapping("/me")
+    public ResponseEntity<List<PostDTO>> getUserPosts(Authentication auth) {
+        String email = auth.getName();
+        Long userId = userService.getUserByEmail(email).getId();
+        logger.info("Fetching posts for user ID: {}", userId);
 
-        // Конвертуємо список Post в список PostDTO
-        List<PostDTO> postDTOs = posts.stream().map(post -> {
+        List<Post> userPosts = postService.getPostsByUserId(userId);
+        List<PostDTO> postDTOs = userPosts.stream().map(post -> {
             PostDTO postDTO = new PostDTO();
             postDTO.setId(post.getId());
             postDTO.setMediaUrl(post.getMediaUrl());
             postDTO.setContent(post.getContent());
             postDTO.setLikes(post.getLikes().size());
-            postDTO.setUserId(postService.getUserIdByPostId(post.getId()));
+            postDTO.setUserId(post.getUser().getId());
 
-            // Перетворюємо коментарі в CommentDTO
+            // Конвертація коментарів
             List<CommentDTO> commentDTOs = post.getComments().stream().map(comment -> {
                 CommentDTO commentDTO = new CommentDTO();
                 commentDTO.setId(comment.getId());
                 commentDTO.setText(comment.getText());
-                commentDTO.setUserId(commentService.getUserIdByCommentId(comment.getId()));
+                commentDTO.setUserId(comment.getUser().getId());
                 return commentDTO;
             }).toList();
 
@@ -68,7 +68,7 @@ public class PostController {
             return postDTO;
         }).toList();
 
-        return postDTOs;
+        return ResponseEntity.ok(postDTOs);
     }
 
     @PostMapping
@@ -137,10 +137,9 @@ public class PostController {
         String email = auth.getName();
         Long userId = userService.getUserByEmail(email).getId();
 
-        // Отримуємо користувача за ID
         User user = userService.getUserById(userId);
-        comment.setPost(postService.getPostById(postId)); // Прив'язуємо коментар до поста
-        comment.setUser(user); // Прив'язуємо коментар до користувача
+        comment.setPost(postService.getPostById(postId));
+        comment.setUser(user);
 
         Comment createdComment = commentService.addComment(comment);
         logger.info("Comment added with ID: {}", createdComment.getId());
@@ -148,7 +147,6 @@ public class PostController {
     }
 
 
-    // Отримати всі коментарі до поста
     @GetMapping("/{postId}/comments")
     public List<Comment> getComments(@PathVariable Long postId) {
         logger.info("Getting comments for post with ID: {}", postId);
