@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axiosInstance from '../api/axiosInstance';
-import { PostProps } from './types/types';
+import { PostProps } from './types';
 import Post from './Post';
 import { toast } from 'react-toastify';
 import './style/UserPosts.css';

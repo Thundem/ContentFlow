@@ -15,7 +15,7 @@ import genderIcon from "./img/gender.svg";
 import { validate } from "./validate";
 import { notify } from "./toast";
 import axiosInstance from "../api/axiosInstance";
-import { SignUpData, FieldErrorResponse, CheckResponse } from "./types/types";
+import { SignUpData, FieldErrorResponse, CheckResponse } from "./types";
 
 Modal.setAppElement('#root');
 

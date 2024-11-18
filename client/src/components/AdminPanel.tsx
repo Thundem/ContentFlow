@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axiosInstance from '../api/axiosInstance';
-import { User } from './types/types';
+import { User } from './types';
 import styles from './style/AdminPanel.module.css';
 import { toast } from 'react-toastify';
 

@@ -6,7 +6,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import styles from "./style/CreatePost.module.css";
 import TextareaAutosize from "react-textarea-autosize";
-import { PostData, CloudinarySignatureResponse } from "./types/types";
+import { PostData, CloudinarySignatureResponse } from "./types";
 import { useDropzone } from "react-dropzone";
 
 const CreatePost: React.FC = () => {

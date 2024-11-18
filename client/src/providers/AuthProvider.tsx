@@ -3,7 +3,7 @@ import { AuthContext } from '../context/AuthContext';
 import axiosInstance from '../api/axiosInstance';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { User, AuthContextType } from '../components/types/types';
+import { User, AuthContextType } from '../components/types';
 
 interface AuthProviderProps {
     children: React.ReactNode;

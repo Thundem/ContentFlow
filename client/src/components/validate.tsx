@@ -1,4 +1,4 @@
-import { LoginData, SignUpData } from './types/types';
+import { LoginData, SignUpData } from './types';
 
 export const validate = (data: LoginData | SignUpData, type: "login" | "signUp"): Record<string, string> => {
     const errors: Record<string, string> = {};
