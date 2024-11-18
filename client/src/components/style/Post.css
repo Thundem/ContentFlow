@@ -11,8 +11,10 @@
     margin-top: 40px;
     position: relative;
     max-width: 500px;
+    width: 100%;
     display: flex;
     flex-direction: column;
+    overflow: hidden;
 }
 
 .post-header {
@@ -28,23 +30,27 @@
 
 .post-content {
     color: #555;
+    margin-top: 15px;
+    text-align: justify;
 }
 
 .post-media {
-    max-width: 100%;
-    max-height: 500px;
+    width: 100%;
+    height: 100%;
+    margin-top: 15px;
     overflow: hidden;
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-top: 15px; 
 }
 
 .post-media img,
 .post-media video {
     width: 100%;
-    height: auto;
+    height: 100%;
+    image-rendering: pixelated;
     object-fit: cover;
+    object-position: center center;
 }
 
 .post-footer {
@@ -201,8 +207,4 @@
         text-align: left;
         cursor: pointer;
     }
-/* 
-    .header-user-menu {
-        При необхідності, додайте стилі для мобільних 
-    } */
 }
