@@ -13,6 +13,7 @@ import ResendVerification from "./components/ResendVerification";
 import Settings from './components/Settings';
 import AdminPanel from './components/AdminPanel';
 import Verify from './components/Verify';
+import UserPosts from './components/UserPosts';
 
 const App: React.FC = () => {
     return (
@@ -23,6 +24,7 @@ const App: React.FC = () => {
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<SignUp />} />
                 <Route path="/create" element={<PrivateRoute element={<CreatePost />} />} />
+                <Route path="/posts" element={<PrivateRoute element={<UserPosts />} />} />
                 <Route path="/users/:username" element={<PrivateRoute element={<Profile />} />} />
                 <Route path="/settings" element={<PrivateRoute element={<Settings />} />} />
                 <Route path="/admin-panel" element={<AdminPrivateRoute element={<AdminPanel />} />} />
