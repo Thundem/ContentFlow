@@ -171,10 +171,10 @@ const Header: React.FC = () => {
                     <div className="overlay show" onClick={handleDismissClick}></div>
                     <div className={`install-banner show`}>
                         <span>Install our app for a better experience!</span>
-                        <div className="install-buttons-container">
+                        {/* <div className="install-buttons-container"> */}
                             <button onClick={handleInstallClick} aria-label="Install App">Install</button>
                             <button onClick={handleDismissClick} aria-label="Dismiss Install Prompt">Dismiss</button>
-                        </div>
+                        {/* </div> */}
                     </div>
                 </>
             )}
