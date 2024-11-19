@@ -5,6 +5,7 @@ import { Link, useLocation } from 'react-router-dom';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import manAvatar from './img/manAvatar.png';
 import womanAvatar from './img/womanAvatar.png';
+import { toast } from "react-toastify";
 
 const Header: React.FC = () => {
     const { isAuthenticated, isLoading, user, logout } = useAuth();
@@ -37,7 +38,11 @@ const Header: React.FC = () => {
         const handler = (e: BeforeInstallPromptEvent) => {
             e.preventDefault();
             setDeferredPrompt(e);
-            setShowInstallButton(true);
+            const isInstalled = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as NavigatorExtended).standalone === true;
+
+            if (!isInstalled) {
+                setShowInstallButton(true);
+            }
         };
 
         window.addEventListener('beforeinstallprompt', handler);
@@ -45,6 +50,13 @@ const Header: React.FC = () => {
         return () => {
             window.removeEventListener('beforeinstallprompt', handler);
         };
+    }, []);
+
+    useEffect(() => {
+        const isInstalled = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as NavigatorExtended).standalone === true;
+        if (isInstalled) {
+            setShowInstallButton(false);
+        }
     }, []);
 
     const toggleDropdown = () => {
@@ -69,6 +81,7 @@ const Header: React.FC = () => {
         deferredPrompt.userChoice.then((choiceResult) => {
             if (choiceResult.outcome === 'accepted') {
                 console.log('User accepted the A2HS prompt');
+                toast.success("Додаток успішно встановлено!");
             } else {
                 console.log('User dismissed the A2HS prompt');
             }
@@ -125,7 +138,7 @@ const Header: React.FC = () => {
                                     </Link>
                                     {user.role === 'ADMIN' && (
                                         <Link to="/admin-panel">
-                                            <i className="fas fa-user-shield"></i>Admin Panel
+                                            <i className="fas fa-user-shield"></i> Admin Panel
                                         </Link>
                                     )}
                                     <div className="dropdown-divider"></div>

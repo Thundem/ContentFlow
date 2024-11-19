@@ -10,3 +10,7 @@ interface BeforeInstallPromptEvent extends Event {
 interface WindowEventMap {
     beforeinstallprompt: BeforeInstallPromptEvent;
 }
+
+interface NavigatorExtended extends Navigator {
+    standalone?: boolean;
+}
