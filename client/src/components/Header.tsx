@@ -1,3 +1,4 @@
+// src/components/Header.tsx
 import React, { useState, useEffect, useRef } from 'react';
 import './style/Header.css';
 import { useAuth } from '../hooks/useAuth';
@@ -6,6 +7,7 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 import manAvatar from './img/manAvatar.png';
 import womanAvatar from './img/womanAvatar.png';
 import { toast } from "react-toastify";
+import { getBrowser } from '../utils/browser';
 
 const Header: React.FC = () => {
     const { isAuthenticated, isLoading, user, logout } = useAuth();
@@ -13,8 +15,10 @@ const Header: React.FC = () => {
     const [isBurgerMenuOpen, setIsBurgerMenuOpen] = useState(false);
     const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
     const [showInstallButton, setShowInstallButton] = useState(false);
+    const [manualInstallInstructions, setManualInstallInstructions] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
     const location = useLocation();
+    const browser = getBrowser();
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -35,27 +39,42 @@ const Header: React.FC = () => {
     }, [isDropdownOpen]);
 
     useEffect(() => {
-        const handler = (e: BeforeInstallPromptEvent) => {
-            e.preventDefault();
-            setDeferredPrompt(e);
+        if (browser === 'Chrome') {
+            const handler = (e: BeforeInstallPromptEvent) => {
+                console.log('beforeinstallprompt event fired');
+                e.preventDefault();
+                setDeferredPrompt(e);
+                const isInstalled = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as NavigatorExtended).standalone === true;
+                console.log('Is app installed:', isInstalled);
+
+                if (!isInstalled) {
+                    setShowInstallButton(true);
+                    console.log('Showing install button');
+                } else {
+                    console.log('App is already installed, not showing install button');
+                }
+            };
+
+            window.addEventListener('beforeinstallprompt', handler);
+
+            return () => {
+                window.removeEventListener('beforeinstallprompt', handler);
+            };
+        } else {
             const isInstalled = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as NavigatorExtended).standalone === true;
-
             if (!isInstalled) {
-                setShowInstallButton(true);
+                setManualInstallInstructions(true);
             }
-        };
-
-        window.addEventListener('beforeinstallprompt', handler);
-
-        return () => {
-            window.removeEventListener('beforeinstallprompt', handler);
-        };
-    }, []);
+        }
+    }, [browser]);
 
     useEffect(() => {
         const isInstalled = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as NavigatorExtended).standalone === true;
+        console.log('Initial install check, isInstalled:', isInstalled);
         if (isInstalled) {
             setShowInstallButton(false);
+            setManualInstallInstructions(false);
+            console.log('App is installed on mount, hiding install button');
         }
     }, []);
 
@@ -76,7 +95,11 @@ const Header: React.FC = () => {
     }
 
     const handleInstallClick = () => {
-        if (!deferredPrompt) return;
+        if (!deferredPrompt) {
+            console.log('No deferred prompt available');
+            return;
+        }
+        console.log('Prompting user to install PWA');
         deferredPrompt.prompt();
         deferredPrompt.userChoice.then((choiceResult) => {
             if (choiceResult.outcome === 'accepted') {
@@ -92,6 +115,33 @@ const Header: React.FC = () => {
 
     const handleDismissClick = () => {
         setShowInstallButton(false);
+        setManualInstallInstructions(false);
+        console.log('User dismissed the install banner');
+    };
+
+    const renderManualInstallInstructions = () => {
+        if (browser === 'Firefox') {
+            return (
+                <div className="install-banner show">
+                    <span>Щоб встановити додаток, натисніть кнопку меню та виберіть "Додати до домашнього екрану".</span>
+                    <button onClick={handleDismissClick}>Закрити</button>
+                </div>
+            );
+        } else if (browser === 'Safari') {
+            return (
+                <div className="install-banner show">
+                    <span>Щоб встановити додаток, натисніть кнопку "Поділитися" та виберіть "Додати на головний екран".</span>
+                    <button onClick={handleDismissClick}>Закрити</button>
+                </div>
+            );
+        } else {
+            return (
+                <div className="install-banner show">
+                    <span>Щоб встановити додаток, скористайтеся меню вашого браузера та виберіть "Додати на головний екран" або подібну опцію.</span>
+                    <button onClick={handleDismissClick}>Закрити</button>
+                </div>
+            );
+        }
     };
 
     return (
@@ -157,16 +207,23 @@ const Header: React.FC = () => {
                     )}
                 </div>
             </nav>
-            {showInstallButton && (
+            {/* Install Prompt for Chrome */}
+            {showInstallButton && browser === 'Chrome' && (
                 <>
                     <div className="overlay show" onClick={handleDismissClick}></div>
                     <div className={`install-banner show`}>
-                        <span>Install our app for a better experience!</span>
+                        <span>Встановіть наш додаток для кращого досвіду!</span>
                         <div className='install-buttons-container'>
-                            <button onClick={handleInstallClick}>Install</button>
-                            <button onClick={handleDismissClick}>Dismiss</button>
+                            <button onClick={handleInstallClick}>Встановити</button>
+                            <button onClick={handleDismissClick}>Закрити</button>
                         </div>
                     </div>
+                </>
+            )}
+            {manualInstallInstructions && (browser === 'Firefox' || browser === 'Safari' || browser === 'Other') && (
+                <>
+                    <div className="overlay show" onClick={handleDismissClick}></div>
+                    {renderManualInstallInstructions()}
                 </>
             )}
         </header>
