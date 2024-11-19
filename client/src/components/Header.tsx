@@ -6,11 +6,6 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 import manAvatar from './img/manAvatar.png';
 import womanAvatar from './img/womanAvatar.png';
 
-interface BeforeInstallPromptEvent extends Event {
-    prompt: () => void;
-    userChoice: Promise<{ outcome: 'accepted' | 'dismissed'; platform: string }>;
-}
-
 const Header: React.FC = () => {
     const { isAuthenticated, isLoading, user, logout } = useAuth();
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -19,10 +14,6 @@ const Header: React.FC = () => {
     const [showInstallButton, setShowInstallButton] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
     const location = useLocation();
-
-    const isPWAInstalled = (): boolean => {
-        return window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
-    };
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -43,31 +34,18 @@ const Header: React.FC = () => {
     }, [isDropdownOpen]);
 
     useEffect(() => {
-        const handler = (e: Event) => {
-            const event = e as BeforeInstallPromptEvent;
-            event.preventDefault();
-            setDeferredPrompt(event);
+        const handler = (e: BeforeInstallPromptEvent) => {
+            e.preventDefault();
+            setDeferredPrompt(e);
             setShowInstallButton(true);
         };
 
-        window.addEventListener('beforeinstallprompt', handler as EventListener);
-
-        if (!isPWAInstalled()) {
-            const timer = setTimeout(() => {
-                if (!isPWAInstalled() && !deferredPrompt) {
-                    setShowInstallButton(true);
-                }
-            }, 3000);
-
-            return () => clearTimeout(timer);
-        } else {
-            setShowInstallButton(false);
-        }
+        window.addEventListener('beforeinstallprompt', handler);
 
         return () => {
-            window.removeEventListener('beforeinstallprompt', handler as EventListener);
+            window.removeEventListener('beforeinstallprompt', handler);
         };
-    }, [deferredPrompt]);
+    }, []);
 
     const toggleDropdown = () => {
         setIsDropdownOpen((prev) => !prev);
@@ -171,10 +149,10 @@ const Header: React.FC = () => {
                     <div className="overlay show" onClick={handleDismissClick}></div>
                     <div className={`install-banner show`}>
                         <span>Install our app for a better experience!</span>
-                        {/* <div className="install-buttons-container"> */}
-                            <button onClick={handleInstallClick} aria-label="Install App">Install</button>
-                            <button onClick={handleDismissClick} aria-label="Dismiss Install Prompt">Dismiss</button>
-                        {/* </div> */}
+                        <div className='install-buttons-container'>
+                            <button onClick={handleInstallClick}>Install</button>
+                            <button onClick={handleDismissClick}>Dismiss</button>
+                        </div>
                     </div>
                 </>
             )}
