@@ -1,4 +1,3 @@
-// src/components/Header.tsx
 import React, { useState, useEffect, useRef } from 'react';
 import './style/Header.css';
 import { useAuth } from '../hooks/useAuth';
